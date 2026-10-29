@@ -71,7 +71,6 @@
             box-shadow: 0 0 0 2px rgba(217, 160, 160, 0.4);
         }
 
-        /* 淡入動畫 */
         .fade-in {
             animation: fadeIn 0.3s ease-in-out forwards;
         }
@@ -103,7 +102,7 @@
         </button>
     </header>
 
-    <!-- 工作人員後台面板 (預設隱藏) -->
+    <!-- 工作人員後台面板 -->
     <section id="adminPanel" class="max-w-md mx-auto px-4 mb-6 hidden fade-in">
         <div class="hand-card-yellow p-4 relative">
             <div class="flex items-center justify-between mb-3 border-b-2 border-dashed border-[#4A3E3D] pb-2">
@@ -122,11 +121,11 @@
                 </div>
             </div>
 
-            <!-- 已報到名冊與搜尋 -->
+            <!-- 已報到名冊 -->
             <div class="mt-4">
                 <div class="flex justify-between items-center mb-1.5">
                     <label class="text-xs font-bold text-[#4A3E3D]">已報到名冊 (<span id="totalCheckinCount">0</span> 人)：</label>
-                    <input type="text" id="searchRegistry" oninput="renderRegistry()" placeholder="搜尋學工號/姓名" class="hand-input text-xs px-2 py-1 w-36">
+                    <input type="text" id="searchRegistry" oninput="renderRegistry()" placeholder="搜尋姓名/身份證號" class="hand-input text-xs px-2 py-1 w-36">
                 </div>
                 <div class="bg-white border-2 border-[#4A3E3D] rounded-xl p-2 max-h-40 overflow-y-auto text-xs">
                     <table class="w-full text-left">
@@ -134,22 +133,23 @@
                             <tr class="border-b border-gray-300 text-gray-500">
                                 <th class="pb-1">號碼</th>
                                 <th class="pb-1">姓名</th>
-                                <th class="pb-1">學工號</th>
-                                <th class="pb-1 text-right">報到時間</th>
+                                <th class="pb-1">身分證5碼</th>
+                                <th class="pb-1">體溫</th>
+                                <th class="pb-1 text-right">時間</th>
                             </tr>
                         </thead>
                         <tbody id="registryList">
-                            <!-- 名單會動態生成於此 -->
+                            <!-- 動態生成 -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 滿意度問卷回饋 -->
+            <!-- 問卷回饋收集紀錄 -->
             <div class="mt-4">
-                <label class="block text-xs font-bold text-[#4A3E3D] mb-1">民眾回饋與評價：</label>
-                <div class="bg-white border-2 border-[#4A3E3D] rounded-xl p-2 max-h-32 overflow-y-auto text-xs space-y-2" id="feedbackList">
-                    <p class="text-gray-400 text-center py-2">尚無回饋資料</p>
+                <label class="block text-xs font-bold text-[#4A3E3D] mb-1">滿意度問卷回饋紀錄：</label>
+                <div class="bg-white border-2 border-[#4A3E3D] rounded-xl p-2 max-h-36 overflow-y-auto text-xs space-y-2" id="feedbackList">
+                    <!-- 動態生成 -->
                 </div>
             </div>
         </div>
@@ -158,13 +158,13 @@
     <!-- 主要內容區 -->
     <main class="max-w-md mx-auto px-4 space-y-5">
 
-        <!-- 頁籤切換：首頁 / 接種叮嚀 -->
+        <!-- 頁籤切換 -->
         <div class="flex justify-center gap-2 mb-2">
             <button id="tabHomeBtn" onclick="switchTab('home')" class="hand-btn hand-btn-pink px-5 py-2 text-sm font-bold flex-1">
                 <i class="fa-solid fa-house mr-1"></i> 現場功能
             </button>
             <button id="tabGuideBtn" onclick="switchTab('guide')" class="hand-btn bg-white px-5 py-2 text-sm font-bold flex-1">
-                <i class="fa-solid fa-clipboard-list mr-1"></i> 接種叮嚀 & 回饋
+                <i class="fa-solid fa-clipboard-list mr-1"></i> 接種叮嚀 & 問卷
             </button>
         </div>
 
@@ -195,23 +195,27 @@
 
             <!-- 自助報到取號卡片 -->
             <div class="hand-card p-5 bg-[#FFF9F2]">
-                <div class="flex items-center gap-2 mb-3">
-                    <i class="fa-solid fa-id-card text-lg text-[#D9A0A0]"></i>
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fa-solid fa-address-card text-lg text-[#D9A0A0]"></i>
                     <h2 class="font-bold text-base text-[#3D2826]">現場自主報到取號</h2>
                 </div>
-                <p class="text-xs text-gray-600 mb-3">請輸入您的基本資料，報到成功後系統將自動為您發放號碼牌。</p>
+                <p class="text-xs text-gray-600 mb-3">請填寫基本資料完成現場報到並領取號碼牌。</p>
 
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs font-bold text-[#4A3E3D] mb-1">學號 / 工號：</label>
-                        <input type="text" id="checkinId" placeholder="例如：A1234567" class="hand-input w-full px-3 py-2 text-sm">
+                        <label class="block text-xs font-bold text-[#4A3E3D] mb-1">姓名：</label>
+                        <input type="text" id="checkinName" placeholder="例如：王大明" class="hand-input w-full px-3 py-2 text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-[#4A3E3D] mb-1">姓名：</label>
-                        <input type="text" id="checkinName" placeholder="例如：王小明" class="hand-input w-full px-3 py-2 text-sm">
+                        <label class="block text-xs font-bold text-[#4A3E3D] mb-1">身分證號末 5 碼：</label>
+                        <input type="text" id="checkinId" maxlength="5" placeholder="例如：12345" class="hand-input w-full px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#4A3E3D] mb-1">現場測量體溫 (°C)：</label>
+                        <input type="number" step="0.1" id="checkinTemp" placeholder="例如：36.5" class="hand-input w-full px-3 py-2 text-sm">
                     </div>
                     <button onclick="submitCheckin()" class="hand-btn hand-btn-pink w-full py-2.5 font-bold text-sm">
-                        <i class="fa-solid fa-check-to-slot mr-1"></i> 報到並領取號碼
+                        <i class="fa-solid fa-check-to-slot mr-1"></i> 確認報到並領取號碼
                     </button>
                 </div>
 
@@ -226,8 +230,8 @@
             <!-- 15/30 分鐘留觀計時器 -->
             <div class="hand-card p-5">
                 <div class="flex items-center gap-2 mb-2">
-                    <i class="fa-solid fa-clock text-lg text-[#9E8478]"></i>
-                    <h2 class="font-bold text-base text-[#3D2826]">接踵後留觀計時器</h2>
+                    <i class="fa-solid fa-stopwatch text-lg text-[#9E8478]"></i>
+                    <h2 class="font-bold text-base text-[#3D2826]">接種後留觀計時器</h2>
                 </div>
                 <p class="text-xs text-gray-600 mb-3">打完針請於休息區留觀 15~30 分鐘，無不適即可離開。</p>
 
@@ -242,13 +246,13 @@
             </div>
         </div>
 
-        <!-- TAB 2: 接種叮嚀與回饋 (注意事項、滿意度問卷) -->
+        <!-- TAB 2: 接種叮嚀與問卷 -->
         <div id="tabGuide" class="space-y-5 hidden fade-in">
 
             <!-- 接種三步驟指南 -->
             <div class="hand-card p-5">
                 <h2 class="font-bold text-base text-[#3D2826] mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-[#D9A0A0] fa-notes-medical"></i> 接種流程說明
+                    <i class="fa-solid fa-notes-medical text-[#D9A0A0]"></i> 接種流程說明
                 </h2>
                 <div class="space-y-3 text-xs">
                     <div class="flex items-start gap-3 p-2 bg-[#FFF8E7] rounded-xl border border-[#4A3E3D]">
@@ -287,36 +291,82 @@
                 </ul>
             </div>
 
-            <!-- 活動滿意度調查區塊 -->
+            <!-- 深入活動滿意度問卷 -->
             <div class="hand-card p-5 bg-[#FFF9F2]">
                 <h2 class="font-bold text-base text-[#3D2826] mb-1 flex items-center gap-2">
-                    <i class="fa-solid fa-comment-dots text-[#D9A0A0]"></i> 活動滿意度與意見回饋
+                    <i class="fa-solid fa-square-poll-vertical text-[#D9A0A0]"></i> 活動滿意度與服務問卷
                 </h2>
-                <p class="text-xs text-gray-600 mb-3">您的寶貴意見是我們改善流程的重要依據！</p>
+                <p class="text-xs text-gray-600 mb-4">感謝您參與本次流感疫苗接種，請協助填寫滿意度調查，作為我們改進服務的依據。</p>
 
-                <form id="feedbackForm" onsubmit="submitFeedback(event)" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold text-[#4A3E3D] mb-1">整體滿意度評分：</label>
-                        <div class="flex gap-2 text-xl text-amber-400" id="starRating">
-                            <i class="fa-solid fa-star cursor-pointer" onclick="setRating(1)"></i>
-                            <i class="fa-solid fa-star cursor-pointer" onclick="setRating(2)"></i>
-                            <i class="fa-solid fa-star cursor-pointer" onclick="setRating(3)"></i>
-                            <i class="fa-solid fa-star cursor-pointer" onclick="setRating(4)"></i>
-                            <i class="fa-solid fa-star cursor-pointer" onclick="setRating(5)"></i>
+                <form id="surveyForm" onsubmit="submitSurvey(event)" class="space-y-4 text-xs">
+                    
+                    <!-- Q1 -->
+                    <div class="p-2.5 bg-white rounded-xl border border-[#4A3E3D]">
+                        <p class="font-bold mb-2">1. 您對於本次接種動線規劃與現場等待時間的滿意度？</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label><input type="radio" name="q1" value="非常滿意" required> 非常滿意</label>
+                            <label><input type="radio" name="q1" value="滿意"> 滿意</label>
+                            <label><input type="radio" name="q1" value="普通"> 普通</label>
+                            <label><input type="radio" name="q1" value="不滿意"> 不滿意</label>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-[#4A3E3D] mb-1">給我們的建議或想說的話：</label>
-                        <textarea id="feedbackComment" rows="3" placeholder="例如：流程很順暢、引導工作人員很親切..." class="hand-input w-full p-2 text-xs"></textarea>
+                    <!-- Q2 -->
+                    <div class="p-2.5 bg-white rounded-xl border border-[#4A3E3D]">
+                        <p class="font-bold mb-2">2. 您對於現場場地環境舒適度及指標清晰度的滿意度？</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label><input type="radio" name="q2" value="非常滿意" required> 非常滿意</label>
+                            <label><input type="radio" name="q2" value="滿意"> 滿意</label>
+                            <label><input type="radio" name="q2" value="普通"> 普通</label>
+                            <label><input type="radio" name="q2" value="不滿意"> 不滿意</label>
+                        </div>
                     </div>
 
-                    <button type="submit" class="hand-btn hand-btn-green w-full py-2 font-bold text-xs">
-                        提交回饋
+                    <!-- Q3 -->
+                    <div class="p-2.5 bg-white rounded-xl border border-[#4A3E3D]">
+                        <p class="font-bold mb-2">3. 您對於現場醫護與工作人員的服務態度滿意度？</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label><input type="radio" name="q3" value="非常滿意" required> 非常滿意</label>
+                            <label><input type="radio" name="q3" value="滿意"> 滿意</label>
+                            <label><input type="radio" name="q3" value="普通"> 普通</label>
+                            <label><input type="radio" name="q3" value="不滿意"> 不滿意</label>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="p-2.5 bg-white rounded-xl border border-[#4A3E3D]">
+                        <p class="font-bold mb-2">4. 現場工作人員對於接種前衛教與注意事項說明是否清晰？</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label><input type="radio" name="q4" value="非常清晰" required> 非常清晰</label>
+                            <label><input type="radio" name="q4" value="尚算清晰"> 尚算清晰</label>
+                            <label><input type="radio" name="q4" value="不夠清晰"> 不夠清晰</label>
+                        </div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="p-2.5 bg-white rounded-xl border border-[#4A3E3D]">
+                        <p class="font-bold mb-2">5. 整體而言，您對本次流感疫苗接種活動的綜合評價？</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label><input type="radio" name="q5" value="非常滿意" required> 非常滿意</label>
+                            <label><input type="radio" name="q5" value="滿意"> 滿意</label>
+                            <label><input type="radio" name="q5" value="普通"> 普通</label>
+                            <label><input type="radio" name="q5" value="不滿意"> 不滿意</label>
+                        </div>
+                    </div>
+
+                    <!-- Q6 開放題 -->
+                    <div class="p-2.5 bg-white rounded-xl border border-[#4A3E3D]">
+                        <p class="font-bold mb-1">6. 您對於未來辦理疫苗接種活動有何寶貴建議或改善意見？（選填）</p>
+                        <textarea id="q6Comment" rows="3" placeholder="請寫下您的建議或心得..." class="hand-input w-full p-2 text-xs"></textarea>
+                    </div>
+
+                    <button type="submit" class="hand-btn hand-btn-green w-full py-2.5 font-bold text-xs text-base">
+                        提交滿意度問卷
                     </button>
                 </form>
-                <div id="feedbackSuccessMsg" class="hidden text-xs text-center font-bold text-green-700 mt-2">
-                    感謝您的意見回饋！祝您身體健康！
+
+                <div id="surveySuccessMsg" class="hidden text-xs text-center font-bold text-green-700 mt-3 p-2 bg-green-50 rounded-lg border border-green-300">
+                    感謝您寶貴的意見！祝您身體健康、萬事順心！
                 </div>
             </div>
 
@@ -326,25 +376,21 @@
 
     <!-- JavaScript 邏輯 -->
     <script>
-        // 狀態變數 (使用 localStorage 保持資料)
         let callNum = parseInt(localStorage.getItem('callNum')) || 45;
         let lastTicketNum = parseInt(localStorage.getItem('lastTicketNum')) || 45;
         let registryData = JSON.parse(localStorage.getItem('registryData')) || [
-            { id: 'A12345', name: '張小美', ticket: '044', time: '09:15' },
-            { id: 'B87654', name: '李大同', ticket: '045', time: '09:20' }
+            { id: '12345', name: '王大明', temp: '36.5', ticket: '044', time: '09:15' },
+            { id: '67890', name: '陳小華', temp: '36.8', ticket: '045', time: '09:20' }
         ];
-        let feedbacks = JSON.parse(localStorage.getItem('feedbacks')) || [];
-        let selectedRating = 5;
+        let surveyResponses = JSON.parse(localStorage.getItem('surveyResponses')) || [];
         let timerInterval = null;
 
-        // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             updateNumDisplay();
             renderRegistry();
             renderFeedbacks();
         });
 
-        // 切換頁籤
         function switchTab(tab) {
             const homeTab = document.getElementById('tabHome');
             const guideTab = document.getElementById('tabGuide');
@@ -364,7 +410,6 @@
             }
         }
 
-        // 切換工作人員後台
         function toggleAdminView() {
             const adminPanel = document.getElementById('adminPanel');
             const adminBtnText = document.getElementById('adminBtnText');
@@ -377,7 +422,6 @@
             }
         }
 
-        // 叫號數字更新
         function updateNumDisplay() {
             const formatted = String(callNum).padStart(3, '0');
             document.getElementById('currentNum').textContent = formatted;
@@ -398,7 +442,6 @@
             }
         }
 
-        // 民眾對照號碼
         function checkUserStatus() {
             const userNum = parseInt(document.getElementById('userCheckNum').value);
             const resDiv = document.getElementById('checkResult');
@@ -423,13 +466,14 @@
             }
         }
 
-        // 自助報到取號
+        // 報到提交 (含姓名、身分證5碼、體溫)
         function submitCheckin() {
-            const idInput = document.getElementById('checkinId').value.trim();
             const nameInput = document.getElementById('checkinName').value.trim();
+            const idInput = document.getElementById('checkinId').value.trim();
+            const tempInput = document.getElementById('checkinTemp').value.trim();
 
-            if (!idInput || !nameInput) {
-                alert("請填寫完整的學工號與姓名！");
+            if (!nameInput || !idInput || !tempInput) {
+                alert("請填寫完整的姓名、身分證號末 5 碼與體溫！");
                 return;
             }
 
@@ -439,8 +483,9 @@
             const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
             const newRecord = {
-                id: idInput,
                 name: nameInput,
+                id: idInput,
+                temp: tempInput,
                 ticket: formattedTicket,
                 time: timeStr
             };
@@ -449,18 +494,16 @@
             localStorage.setItem('registryData', JSON.stringify(registryData));
             localStorage.setItem('lastTicketNum', lastTicketNum);
 
-            // 顯示個人號碼牌
             document.getElementById('myTicketNum').textContent = formattedTicket;
-            document.getElementById('myTicketName').textContent = `${nameInput} (${idInput}) 報到成功！`;
+            document.getElementById('myTicketName').textContent = `${nameInput} 先生/女士 報到成功！`;
             document.getElementById('myTicketBox').classList.remove('hidden');
 
-            // 清空輸入框並更新後台
-            document.getElementById('checkinId').value = '';
             document.getElementById('checkinName').value = '';
+            document.getElementById('checkinId').value = '';
+            document.getElementById('checkinTemp').value = '';
             renderRegistry();
         }
 
-        // 渲染後台名冊
         function renderRegistry() {
             const tbody = document.getElementById('registryList');
             const searchKeyword = document.getElementById('searchRegistry').value.toLowerCase();
@@ -473,7 +516,7 @@
             );
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-2 text-gray-400">尚無符合條件的資料</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-2 text-gray-400">尚無符合條件的資料</td></tr>`;
                 return;
             }
 
@@ -482,12 +525,12 @@
                     <td class="py-1 font-bold text-[#D9A0A0]">${item.ticket}</td>
                     <td class="py-1">${item.name}</td>
                     <td class="py-1 text-gray-500">${item.id}</td>
+                    <td class="py-1 text-blue-600 font-bold">${item.temp}°C</td>
                     <td class="py-1 text-right text-gray-400">${item.time}</td>
                 </tr>
             `).join('');
         }
 
-        // 留觀計時器
         function startTimer(minutes) {
             clearInterval(timerInterval);
             let totalSeconds = minutes * 60;
@@ -517,56 +560,49 @@
             document.getElementById('timerDisplay').textContent = "15:00";
         }
 
-        // 星級評分
-        function setRating(r) {
-            selectedRating = r;
-            const stars = document.getElementById('starRating').children;
-            for (let i = 0; i < 5; i++) {
-                if (i < r) {
-                    stars[i].className = "fa-solid fa-star cursor-pointer";
-                } else {
-                    stars[i].className = "fa-regular fa-star cursor-pointer text-gray-300";
-                }
-            }
-        }
-
-        // 提交滿意度問卷
-        function submitFeedback(e) {
+        // 提交多題滿意度問卷
+        function submitSurvey(e) {
             e.preventDefault();
-            const comment = document.getElementById('feedbackComment').value.trim();
-            const newFeedback = {
-                rating: selectedRating,
-                comment: comment || "無額外留言",
+            const formData = new FormData(e.target);
+            const response = {
+                q1: formData.get('q1'),
+                q2: formData.get('q2'),
+                q3: formData.get('q3'),
+                q4: formData.get('q4'),
+                q5: formData.get('q5'),
+                q6: document.getElementById('q6Comment').value.trim() || '無額外建議',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
 
-            feedbacks.unshift(newFeedback);
-            localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+            surveyResponses.unshift(response);
+            localStorage.setItem('surveyResponses', JSON.stringify(surveyResponses));
 
-            document.getElementById('feedbackComment').value = '';
-            document.getElementById('feedbackSuccessMsg').classList.remove('hidden');
+            document.getElementById('surveyForm').reset();
+            document.getElementById('surveySuccessMsg').classList.remove('hidden');
             setTimeout(() => {
-                document.getElementById('feedbackSuccessMsg').classList.add('hidden');
-            }, 3000);
+                document.getElementById('surveySuccessMsg').classList.add('hidden');
+            }, 4000);
 
             renderFeedbacks();
         }
 
-        // 渲染後台問卷回饋
         function renderFeedbacks() {
             const list = document.getElementById('feedbackList');
-            if (feedbacks.length === 0) {
-                list.innerHTML = `<p class="text-gray-400 text-center py-2">尚無回饋資料</p>`;
+            if (surveyResponses.length === 0) {
+                list.innerHTML = `<p class="text-gray-400 text-center py-2">尚無問卷資料</p>`;
                 return;
             }
 
-            list.innerHTML = feedbacks.map(item => `
-                <div class="border-b border-gray-100 pb-1">
-                    <div class="flex justify-between items-center text-amber-500">
-                        <span>${'★'.repeat(item.rating)}${'☆'.repeat(5 - item.rating)}</span>
+            list.innerHTML = surveyResponses.map(item => `
+                <div class="border-b border-gray-200 pb-2 mb-2">
+                    <div class="flex justify-between items-center font-bold text-gray-700">
+                        <span>整體評價: ${item.q5}</span>
                         <span class="text-gray-400 text-[10px]">${item.time}</span>
                     </div>
-                    <p class="text-gray-700 mt-0.5">${item.comment}</p>
+                    <div class="text-[10px] text-gray-500 mt-0.5">
+                        [動線:${item.q1} | 環境:${item.q2} | 態度:${item.q3} | 衛教:${item.q4}]
+                    </div>
+                    <p class="text-gray-700 mt-1 bg-gray-50 p-1 rounded">建議: ${item.q6}</p>
                 </div>
             `).join('');
         }
