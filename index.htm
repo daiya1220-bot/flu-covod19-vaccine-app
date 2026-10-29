@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>流感疫苗接種小助手 🧸 </title>
+  <title>環安室疫苗接種小助手 🧸 | 2026長庚大學 流感·新冠 三站動態叫號引導</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome Icons -->
@@ -58,13 +58,6 @@
       transition: all 0.2s ease-in-out;
     }
 
-    .hand-card-yellow {
-      background-color: #FFF8E7;
-      border: 2.5px solid #3D3435;
-      border-radius: 22px 18px 24px 20px / 20px 24px 18px 22px;
-      box-shadow: 3px 4px 0px #3D3435;
-    }
-
     .hand-btn {
       border: 2px solid #3D3435;
       border-radius: 20px 8px 18px 10px;
@@ -94,71 +87,34 @@
 <body class="h-full antialiased font-sans flex flex-col justify-between select-none">
 
   <!-- 主容器 -->
-  <div class="max-w-md mx-auto w-full min-h-screen flex flex-col bg-dusty-pinkBg/30 border-x-2 border-dusty-dark shadow-2xl relative pb-20 overflow-x-hidden">
+  <div class="max-w-md mx-auto w-full min-h-screen flex flex-col bg-dusty-pinkBg/30 border-x-2 border-dusty-dark shadow-2xl relative pb-24 overflow-x-hidden">
 
-    <!-- 頂部 Header 與手繪動物橫幅 -->
-    <header class="bg-white p-4 sticky top-0 z-30 border-b-2 border-dusty-dark shadow-sm">
-      <div class="flex justify-between items-center mb-2">
-        <div class="flex items-center gap-2">
-          <div class="w-9 h-9 rounded-full bg-dusty-pink flex items-center justify-center text-white border-2 border-dusty-dark font-black text-lg">
-            💉
-          </div>
-          <div>
-            <h1 class="text-base font-black text-dusty-dark tracking-wide flex items-center gap-1">
-              流感疫苗接種小助手
-            </h1>
-            <p class="text-[10px] text-slate-500 font-bold">莫蘭迪簡約手繪版 ✨</p>
-          </div>
+    <!-- 頂部 Header -->
+    <header class="bg-white p-4 sticky top-0 z-30 border-b-2 border-dusty-dark shadow-sm flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-full bg-dusty-pink flex items-center justify-center text-white border-2 border-dusty-dark font-black text-lg">
+          💉
         </div>
-
-        <!-- 工作人員後台按鈕 -->
-        <button onclick="toggleRoleModal()" class="hand-btn bg-dusty-purple text-dusty-purpleText text-xs px-2.5 py-1 font-bold flex items-center gap-1">
-          <span>⚙️</span>
-          <span id="roleLabel">醫護後台</span>
-        </button>
+        <div>
+          <h1 class="text-base font-black text-dusty-dark tracking-wide flex items-center gap-1">
+            流感疫苗接種小助手
+          </h1>
+          <p class="text-[10px] text-slate-500 font-bold">三站動態叫號版 ✨</p>
+        </div>
       </div>
 
-      <!-- 手繪插畫小動物 -->
-      <div class="pt-2 border-t border-slate-200 flex justify-around items-end h-14 overflow-hidden px-1">
-        <svg class="w-9 h-12 shrink-0" viewBox="0 0 50 70">
-          <path d="M15 25 C10 10 18 5 20 20 C22 5 30 10 25 25" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
-          <ellipse cx="20" cy="35" rx="12" ry="14" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
-          <circle cx="16" cy="32" r="1.5" fill="#3D3435"/><circle cx="24" cy="32" r="1.5" fill="#3D3435"/>
-          <path d="M 18 37 Q 20 39 22 37" fill="none" stroke="#3D3435" stroke-width="2"/>
-          <path d="M 10 49 L 30 49 L 28 65 L 12 65 Z" fill="#FBE8A6" stroke="#3D3435" stroke-width="2"/>
-        </svg>
-
-        <svg class="w-10 h-12 shrink-0" viewBox="0 0 60 70">
-          <circle cx="16" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
-          <circle cx="44" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
-          <ellipse cx="30" cy="33" rx="16" ry="15" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
-          <circle cx="23" cy="31" r="1.5" fill="#3D3435"/><circle cx="37" cy="31" r="1.5" fill="#3D3435"/>
-          <path d="M 16 48 L 44 48 L 40 66 L 20 66 Z" fill="#D8E2DC" stroke="#3D3435" stroke-width="2.5"/>
-        </svg>
-
-        <svg class="w-9 h-12 shrink-0" viewBox="0 0 50 70">
-          <polygon points="12,24 20,10 24,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
-          <polygon points="38,24 30,10 26,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
-          <ellipse cx="25" cy="34" rx="14" ry="13" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
-          <circle cx="20" cy="32" r="1.5" fill="#3D3435"/><circle cx="30" cy="32" r="1.5" fill="#3D3435"/>
-          <path d="M 12 47 L 38 47 L 35 65 L 15 65 Z" fill="#E2D4E0" stroke="#3D3435" stroke-width="2.5"/>
-        </svg>
-
-        <svg class="w-9 h-12 shrink-0" viewBox="0 0 50 70">
-          <ellipse cx="12" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
-          <ellipse cx="38" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
-          <ellipse cx="25" cy="33" rx="13" ry="12" fill="#E8B4B4" stroke="#3D3435" stroke-width="2.5"/>
-          <circle cx="20" cy="31" r="1.5" fill="#3D3435"/><circle cx="30" cy="31" r="1.5" fill="#3D3435"/>
-          <path d="M 13 45 L 37 45 L 34 65 L 16 65 Z" fill="#D2E3ED" stroke="#3D3435" stroke-width="2.5"/>
-        </svg>
-      </div>
+      <!-- 工作人員後台按鈕 -->
+      <button onclick="toggleRoleModal()" class="hand-btn bg-dusty-purple text-dusty-purpleText text-xs px-2.5 py-1.5 font-bold flex items-center gap-1">
+        <span>⚙️</span>
+        <span>醫護後台</span>
+      </button>
     </header>
 
     <!-- 現場廣播 Banner -->
     <div id="broadcastBanner" class="mx-4 mt-3 bg-dusty-yellow p-3 rounded-2xl border-2 border-dusty-dark text-xs font-bold text-dusty-yellowText flex items-center justify-between shadow-sm">
       <div class="flex items-center gap-2 overflow-hidden">
         <span class="text-base">📢</span>
-        <span id="broadcastText" class="truncate">現場廣播：請完成報到的同仁至診間前稍作等候。</span>
+        <span id="broadcastText" class="truncate">現場廣播：請依現場三站叫號燈號依序前往。</span>
       </div>
       <button onclick="dismissBroadcast()" class="px-1 text-amber-900 hover:text-black">
         <i class="fa-solid fa-xmark"></i>
@@ -168,32 +124,49 @@
     <!-- 主要內容區 -->
     <main class="flex-1 p-4 space-y-4 overflow-y-auto no-scrollbar">
 
-      <!-- ==================== TAB 1: 叫號 & 自助報到 ==================== -->
+      <!-- ==================== TAB 1: 三站叫號 & 自助報到 ==================== -->
       <section id="tab-calling" class="tab-content space-y-4">
         
-        <!-- 即時叫號卡片 -->
-        <div class="hand-card bg-dusty-mint p-5 text-center relative overflow-hidden">
-          <div class="inline-flex items-center gap-1.5 bg-white text-dusty-mintText text-xs font-bold px-3 py-1 rounded-full border border-dusty-dark">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            診間即時叫號
-          </div>
-          
-          <div class="my-3 flex justify-center items-baseline gap-1">
-            <span id="currentCallDisplay" class="text-6xl font-black text-dusty-dark tracking-tight">045</span>
-            <span class="text-dusty-mintText font-bold text-base">號</span>
+        <!-- 三站即時叫號看板 -->
+        <div class="hand-card bg-white p-4 space-y-3">
+          <div class="text-center pb-2 border-b-2 border-dashed border-dusty-dark">
+            <span class="inline-flex items-center gap-1.5 bg-dusty-mint text-dusty-mintText text-xs font-bold px-3 py-1 rounded-full border border-dusty-dark">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              現場三站叫號進度
+            </span>
           </div>
 
-          <p class="text-[11px] text-slate-600 font-bold">
-            <i class="fa-regular fa-clock mr-1"></i>最後更新：<span id="lastUpdatedDisplay">剛才</span>
-          </p>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <!-- 第 1 站：掛號 -->
+            <div class="bg-dusty-cream p-2.5 rounded-2xl border-2 border-dusty-dark">
+              <p class="text-[11px] font-bold text-slate-600">1. 掛號窗口</p>
+              <div class="text-2xl font-black text-dusty-dark my-1" id="callStation1">045</div>
+              <span class="text-[10px] bg-white px-2 py-0.5 rounded border border-dusty-dark">叫號中</span>
+            </div>
+
+            <!-- 第 2 站：醫師問診 -->
+            <div class="bg-dusty-yellow/60 p-2.5 rounded-2xl border-2 border-dusty-dark">
+              <p class="text-[11px] font-bold text-dusty-yellowText">2. 醫師問診</p>
+              <div class="text-2xl font-black text-dusty-dark my-1" id="callStation2">043</div>
+              <span class="text-[10px] bg-white px-2 py-0.5 rounded border border-dusty-dark">叫號中</span>
+            </div>
+
+            <!-- 第 3 站：注射診間 -->
+            <div class="bg-dusty-mint p-2.5 rounded-2xl border-2 border-dusty-dark">
+              <p class="text-[11px] font-bold text-dusty-mintText">3. 注射診間</p>
+              <div class="text-2xl font-black text-dusty-dark my-1" id="callStation3">040</div>
+              <span class="text-[10px] bg-white px-2 py-0.5 rounded border border-dusty-dark">叫號中</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-center text-slate-400 font-bold">最後更新：<span id="lastUpdatedDisplay">剛才</span></p>
         </div>
 
         <!-- 現場自主報到取號卡片 -->
         <div class="hand-card bg-dusty-cream p-4 space-y-3">
           <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
-            <span class="text-base">📋</span> 現場自主報到取號
+            <span class="text-base">📋</span> 現場自主報到取號 (第1站)
           </h3>
-          <p class="text-[11px] text-slate-600 font-bold">請輸入姓名、身分證號末 5 碼與現場體溫，以發放專屬號碼牌：</p>
+          <p class="text-[11px] text-slate-600 font-bold">請輸入姓名、身分證號末 5 碼與現場體溫領取號碼牌：</p>
           
           <div class="space-y-2">
             <div>
@@ -221,7 +194,7 @@
           </div>
         </div>
 
-        <!-- 對照我的號碼牌卡片 -->
+        <!-- 對照我的號碼牌進度 -->
         <div class="hand-card bg-dusty-yellow/60 p-4 space-y-3">
           <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
             <span class="text-base">🎫</span> 對照我的號碼進度
@@ -235,68 +208,40 @@
           <div id="queueResult" class="hidden p-2.5 rounded-2xl text-xs font-bold text-center border-2 border-dusty-dark"></div>
         </div>
 
-        <!-- 接種溫馨指南 -->
+        <!-- 三站流程簡介 -->
         <div class="hand-card bg-dusty-pink/30 p-4 space-y-2 text-xs text-dusty-dark">
           <p class="font-bold flex items-center gap-1">
-            <span>📌</span> 接種流程三步驟：
+            <span>📌</span> 三站接種順序說明：
           </p>
           <ul class="list-disc list-inside space-y-1 font-medium pl-1 text-slate-700 text-[11px]">
-            <li>注意叫號並持健保卡至診間進行醫師健康評估。</li>
-            <li>完成疫苗施打後移動至現場留觀休息區。</li>
-            <li>開啟本頁面「留觀計時器」進行 15 分鐘留觀。</li>
+            <li><strong>第1站 掛號窗口</strong>：報到量體溫、領取號碼牌。</li>
+            <li><strong>第2站 醫師問診</strong>：等候叫號進行健康評估。</li>
+            <li><strong>第3站 注射診間</strong>：叫號施打疫苗，完成後至休息區留觀。</li>
           </ul>
         </div>
       </section>
 
-      <!-- ==================== TAB 2: 留觀計時器 ==================== -->
-      <section id="tab-timer" class="tab-content space-y-4 hidden">
-        <div class="hand-card bg-white p-5 text-center space-y-4">
-          <div class="inline-block bg-dusty-purple text-dusty-purpleText border border-dusty-dark text-xs font-bold px-3 py-1 rounded-full">
-            ⏱️ 接種後留觀計時器
-          </div>
-          <p class="text-xs text-slate-500 font-bold">接種後請在現場休息 15~30 分鐘，無不適再離開喔。</p>
+      <!-- ==================== TAB 2: 接種須知 ==================== -->
+      <section id="tab-info" class="tab-content space-y-4 hidden">
+        <div class="hand-card bg-white p-5 space-y-3">
+          <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
+            <span>✨</span> 接種後護理注意事項
+          </h2>
 
-          <!-- 倒數計時器 -->
-          <div class="relative w-44 h-44 mx-auto flex items-center justify-center">
-            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="42" stroke-width="7" stroke="#E2D4E0" fill="transparent"></circle>
-              <circle id="timerCircle" cx="50" cy="50" r="42" stroke-width="7" stroke="#3D3435" class="transition-all duration-1000" stroke-linecap="round" fill="transparent" stroke-dasharray="264" stroke-dashoffset="0"></circle>
-            </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <span id="timerDisplay" class="text-4xl font-black text-dusty-dark tracking-tight">15:00</span>
-              <span id="timerStatusLabel" class="text-[10px] font-bold text-slate-400 mt-1">尚未開始</span>
+          <div class="space-y-2 text-xs font-bold">
+            <div class="bg-dusty-mint p-3 rounded-2xl border border-dusty-dark text-dusty-mintText">
+              <p>💧 多喝水、多休息</p>
+              <p class="font-normal text-[11px] mt-0.5 opacity-90">接種當天請避免劇烈運動，並補充充足水分。</p>
+            </div>
+            <div class="bg-dusty-pink/40 p-3 rounded-2xl border border-dusty-dark text-dusty-dark">
+              <p>🧊 部位紅腫勿揉抓</p>
+              <p class="font-normal text-[11px] mt-0.5 opacity-90">注射部位若有輕微微腫，可適度冷敷，請勿用力捏揉。</p>
+            </div>
+            <div class="bg-dusty-yellow p-3 rounded-2xl border border-dusty-dark text-dusty-yellowText">
+              <p>🤒 發燒觀察與留觀</p>
+              <p class="font-normal text-[11px] mt-0.5 opacity-90">打完針請於現場留觀 15~30 分鐘，若發燒超過 48 小時請儘速就醫。</p>
             </div>
           </div>
-
-          <!-- 時間設定按鈕 -->
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="startTimer(15)" class="hand-btn bg-dusty-mint text-dusty-mintText p-3 font-bold text-xs flex flex-col items-center">
-              <span>⏱️ 開始 15 分鐘</span>
-              <span class="text-[10px] font-normal opacity-80">一般同仁留觀</span>
-            </button>
-            <button onclick="startTimer(30)" class="hand-btn bg-dusty-pink text-white p-3 font-bold text-xs flex flex-col items-center">
-              <span>⭐ 開始 30 分鐘</span>
-              <span class="text-[10px] font-normal opacity-90">體質較敏感者</span>
-            </button>
-          </div>
-
-          <!-- 控制選項 -->
-          <div id="timerControls" class="flex gap-2 justify-center hidden">
-            <button onclick="togglePauseTimer()" id="pauseBtn" class="hand-btn bg-slate-100 text-slate-700 px-4 py-1.5 text-xs font-bold">暫停</button>
-            <button onclick="resetTimer()" class="hand-btn bg-rose-100 text-rose-700 px-4 py-1.5 text-xs font-bold">重設</button>
-          </div>
-
-          <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600 font-bold">
-            <span>🔔 完成時播放提示音</span>
-            <input type="checkbox" id="soundToggle" class="accent-dusty-pink w-4 h-4 cursor-pointer" checked>
-          </div>
-        </div>
-
-        <div class="hand-card bg-dusty-blue p-4 text-xs text-dusty-blueText space-y-1">
-          <p class="font-bold flex items-center gap-1 text-dusty-dark">
-            <span>💡</span> 留觀打發時間：
-          </p>
-          <p class="leading-relaxed font-medium">點擊下方「衛教問答」，完成 3 題解答即可解鎖「今日抗體勇者」勳章卡片！</p>
         </div>
       </section>
 
@@ -357,37 +302,14 @@
             <span class="text-xl">🎁</span>
             <div>
               <p class="font-bold">現場兌換提示</p>
-              <p class="text-[11px] font-medium">憑此畫面可至服務台領取衛教紀念小禮物喔！</p>
+              <p class="text-[11px] font-medium">憑此畫面可至服務台領取 2026 環安室紀念貼紙！</p>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ==================== TAB 4: 叮嚀 & 星星滿意度問卷 ==================== -->
-      <section id="tab-info" class="tab-content space-y-4 hidden">
-        <!-- 護理注意事項 -->
-        <div class="hand-card bg-white p-5 space-y-3">
-          <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
-            <span>✨</span> 接種後護理注意事項
-          </h2>
-
-          <div class="space-y-2 text-xs font-bold">
-            <div class="bg-dusty-mint p-3 rounded-2xl border border-dusty-dark text-dusty-mintText">
-              <p>💧 多喝水、多休息</p>
-              <p class="font-normal text-[11px] mt-0.5 opacity-90">接種當天請避免劇烈運動，並補充充足水分。</p>
-            </div>
-            <div class="bg-dusty-pink/40 p-3 rounded-2xl border border-dusty-dark text-dusty-dark">
-              <p>🧊 部位紅腫勿揉抓</p>
-              <p class="font-normal text-[11px] mt-0.5 opacity-90">注射部位若有輕微微腫，可適度冷敷，請勿用力捏揉。</p>
-            </div>
-            <div class="bg-dusty-yellow p-3 rounded-2xl border border-dusty-dark text-dusty-yellowText">
-              <p>🤒 發燒觀察與處置</p>
-              <p class="font-normal text-[11px] mt-0.5 opacity-90">若發燒超過 48 小時，請儘速就醫並主動告知疫苗接種史。</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 星星評分滿意度問卷 -->
+      <!-- ==================== TAB 4: 星星滿意度問卷 ==================== -->
+      <section id="tab-survey" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-dusty-cream p-5 space-y-4">
           <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
             <span>⭐</span> 活動滿意度與服務問卷
@@ -495,24 +417,53 @@
 
     </main>
 
-    <!-- 底部導覽列 -->
-    <nav class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-30 flex justify-around py-2 rounded-t-3xl shadow-lg">
-      <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center gap-0.5 text-dusty-dark font-bold">
-        <span class="text-base">📢</span>
-        <span class="text-[10px]">叫號 & 報到</span>
+    <!-- 底部導覽列：色彩繽紛色塊 + 手繪可愛動物 -->
+    <nav class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-30 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1.5">
+      
+      <!-- 叫號報到 (綠色塊 + 兔子) -->
+      <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435] transition-all">
+        <svg class="w-6 h-6 mb-0.5" viewBox="0 0 50 70">
+          <path d="M15 25 C10 10 18 5 20 20 C22 5 30 10 25 25" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="20" cy="35" rx="12" ry="14" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="16" cy="32" r="1.5" fill="#3D3435"/><circle cx="24" cy="32" r="1.5" fill="#3D3435"/>
+          <path d="M 18 37 Q 20 39 22 37" fill="none" stroke="#3D3435" stroke-width="2"/>
+        </svg>
+        <span class="text-[10px]">叫號報到</span>
       </button>
-      <button onclick="switchTab('timer')" id="nav-timer" class="nav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 font-bold">
-        <span class="text-base">⏱️</span>
-        <span class="text-[10px]">留觀計時</span>
+
+      <!-- 接種須知 (黃色塊 + 小熊) -->
+      <button onclick="switchTab('info')" id="nav-info" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold transition-all">
+        <svg class="w-6 h-6 mb-0.5" viewBox="0 0 60 70">
+          <circle cx="16" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="44" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="30" cy="33" rx="16" ry="15" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="23" cy="31" r="1.5" fill="#3D3435"/><circle cx="37" cy="31" r="1.5" fill="#3D3435"/>
+        </svg>
+        <span class="text-[10px]">接種須知</span>
       </button>
-      <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 font-bold">
-        <span class="text-base">🎮</span>
+
+      <!-- 衛教問答 (紫色塊 + 小貓) -->
+      <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold transition-all">
+        <svg class="w-6 h-6 mb-0.5" viewBox="0 0 50 70">
+          <polygon points="12,24 20,10 24,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <polygon points="38,24 30,10 26,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="25" cy="34" rx="14" ry="13" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="20" cy="32" r="1.5" fill="#3D3435"/><circle cx="30" cy="32" r="1.5" fill="#3D3435"/>
+        </svg>
         <span class="text-[10px]">衛教問答</span>
       </button>
-      <button onclick="switchTab('info')" id="nav-info" class="nav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 font-bold">
-        <span class="text-base">⭐</span>
-        <span class="text-[10px]">叮嚀 & 問卷</span>
+
+      <!-- 活動問卷 (粉色塊 + 小狗) -->
+      <button onclick="switchTab('survey')" id="nav-survey" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold transition-all">
+        <svg class="w-6 h-6 mb-0.5" viewBox="0 0 50 70">
+          <ellipse cx="12" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
+          <ellipse cx="38" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
+          <ellipse cx="25" cy="33" rx="13" ry="12" fill="#E8B4B4" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="20" cy="31" r="1.5" fill="#3D3435"/><circle cx="30" cy="31" r="1.5" fill="#3D3435"/>
+        </svg>
+        <span class="text-[10px]">活動問卷</span>
       </button>
+
     </nav>
   </div>
 
@@ -534,16 +485,38 @@
       </div>
 
       <div id="controlBox" class="space-y-4 hidden">
-        <!-- 叫號控制區 -->
-        <div class="bg-dusty-mint p-3 rounded-2xl border-2 border-dusty-dark space-y-2">
-          <label class="text-xs font-bold text-dusty-mintText block">調整現場號碼：</label>
-          <div class="flex items-center justify-between gap-2">
-            <button onclick="changeNum(-1)" class="hand-btn bg-white w-8 h-8 font-bold text-dusty-dark">-1</button>
-            <input type="number" id="adminCallInput" class="w-20 bg-white border-2 border-dusty-dark rounded-xl py-1 text-center font-bold text-dusty-dark">
-            <button onclick="changeNum(1)" class="hand-btn bg-white w-8 h-8 font-bold text-dusty-dark">+1</button>
-            <button onclick="changeNum(5)" class="hand-btn bg-white w-8 h-8 font-bold text-dusty-dark">+5</button>
+        <!-- 三站叫號獨立控制區 -->
+        <div class="bg-dusty-mint p-3 rounded-2xl border-2 border-dusty-dark space-y-3">
+          <label class="text-xs font-bold text-dusty-mintText block">三站叫號個別調整：</label>
+          
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span>1. 掛號</span>
+            <div class="flex items-center gap-1">
+              <button onclick="changeStationNum(1, -1)" class="hand-btn bg-white w-7 h-7">-</button>
+              <input type="number" id="adminCall1" class="w-16 bg-white border border-dusty-dark rounded text-center font-bold" value="45">
+              <button onclick="changeStationNum(1, 1)" class="hand-btn bg-white w-7 h-7">+</button>
+            </div>
           </div>
-          <button onclick="saveCallNum()" class="hand-btn w-full bg-dusty-mintText text-white text-xs font-bold py-1.5 mt-1">同步號碼</button>
+
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span>2. 問診</span>
+            <div class="flex items-center gap-1">
+              <button onclick="changeStationNum(2, -1)" class="hand-btn bg-white w-7 h-7">-</button>
+              <input type="number" id="adminCall2" class="w-16 bg-white border border-dusty-dark rounded text-center font-bold" value="43">
+              <button onclick="changeStationNum(2, 1)" class="hand-btn bg-white w-7 h-7">+</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span>3. 注射</span>
+            <div class="flex items-center gap-1">
+              <button onclick="changeStationNum(3, -1)" class="hand-btn bg-white w-7 h-7">-</button>
+              <input type="number" id="adminCall3" class="w-16 bg-white border border-dusty-dark rounded text-center font-bold" value="40">
+              <button onclick="changeStationNum(3, 1)" class="hand-btn bg-white w-7 h-7">+</button>
+            </div>
+          </div>
+
+          <button onclick="saveAllStations()" class="hand-btn w-full bg-dusty-mintText text-white text-xs font-bold py-1.5 mt-1">同步三站號碼</button>
         </div>
 
         <!-- 廣播控制 -->
@@ -589,9 +562,11 @@
   <!-- JAVASCRIPT LOGIC -->
   <script>
     let state = {
-      currentCall: 45,
+      station1: 45,
+      station2: 43,
+      station3: 40,
       lastTicketNum: 45,
-      broadcastMsg: "請完成報到的同仁至診間前稍作等候。✨",
+      broadcastMsg: "現場廣播：請依現場三站叫號燈號依序前往。✨",
       lastUpdated: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -605,14 +580,11 @@
     const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('dusty_vaccine_channel') : null;
 
     function init() {
-      const storedCall = localStorage.getItem('dusty_call_num');
-      if (storedCall) state.currentCall = parseInt(storedCall);
-
-      const storedMsg = localStorage.getItem('dusty_broadcast');
-      if (storedMsg) state.broadcastMsg = storedMsg;
-
-      const storedTicket = localStorage.getItem('dusty_last_ticket');
-      if (storedTicket) state.lastTicketNum = parseInt(storedTicket);
+      if (localStorage.getItem('dusty_s1')) state.station1 = parseInt(localStorage.getItem('dusty_s1'));
+      if (localStorage.getItem('dusty_s2')) state.station2 = parseInt(localStorage.getItem('dusty_s2'));
+      if (localStorage.getItem('dusty_s3')) state.station3 = parseInt(localStorage.getItem('dusty_s3'));
+      if (localStorage.getItem('dusty_broadcast')) state.broadcastMsg = localStorage.getItem('dusty_broadcast');
+      if (localStorage.getItem('dusty_last_ticket')) state.lastTicketNum = parseInt(localStorage.getItem('dusty_last_ticket'));
 
       updateUI();
       renderRegistry();
@@ -622,9 +594,7 @@
       if (channel) {
         channel.onmessage = (e) => {
           if (e.data.type === 'SYNC') {
-            state.currentCall = e.data.currentCall;
-            state.broadcastMsg = e.data.broadcastMsg;
-            state.lastUpdated = e.data.lastUpdated;
+            state = e.data.state;
             updateUI();
           }
         };
@@ -633,19 +603,27 @@
 
     function syncState() {
       state.lastUpdated = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-      localStorage.setItem('dusty_call_num', state.currentCall);
+      localStorage.setItem('dusty_s1', state.station1);
+      localStorage.setItem('dusty_s2', state.station2);
+      localStorage.setItem('dusty_s3', state.station3);
       localStorage.setItem('dusty_broadcast', state.broadcastMsg);
       localStorage.setItem('dusty_last_ticket', state.lastTicketNum);
 
       if (channel) {
-        channel.postMessage({ type: 'SYNC', ...state });
+        channel.postMessage({ type: 'SYNC', state });
       }
       updateUI();
     }
 
     function updateUI() {
-      document.getElementById('currentCallDisplay').innerText = state.currentCall.toString().padStart(3, '0');
+      document.getElementById('callStation1').innerText = String(state.station1).padStart(3, '0');
+      document.getElementById('callStation2').innerText = String(state.station2).padStart(3, '0');
+      document.getElementById('callStation3').innerText = String(state.station3).padStart(3, '0');
       document.getElementById('lastUpdatedDisplay').innerText = state.lastUpdated;
+
+      document.getElementById('adminCall1').value = state.station1;
+      document.getElementById('adminCall2').value = state.station2;
+      document.getElementById('adminCall3').value = state.station3;
 
       const banner = document.getElementById('broadcastBanner');
       if (state.broadcastMsg && state.broadcastMsg.trim() !== '') {
@@ -654,22 +632,14 @@
       } else {
         banner.classList.add('hidden');
       }
-
-      document.getElementById('adminCallInput').value = state.currentCall;
     }
 
     function dismissBroadcast() {
       document.getElementById('broadcastBanner').classList.add('hidden');
     }
 
-    // 星星評分互動邏輯
-    const starLabels = {
-      1: "1分 (需改善)",
-      2: "2分 (尚可)",
-      3: "3分 (普通)",
-      4: "4分 (滿意)",
-      5: "5分 (非常滿意)"
-    };
+    // 星星評分
+    const starLabels = { 1: "1分 (需改善)", 2: "2分 (尚可)", 3: "3分 (普通)", 4: "4分 (滿意)", 5: "5分 (非常滿意)" };
 
     function initStars() {
       ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
@@ -708,15 +678,7 @@
       const now = new Date();
       const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-      const newRecord = {
-        name: name,
-        id: id5,
-        temp: temp,
-        ticket: formattedTicket,
-        time: timeStr
-      };
-
-      registryData.unshift(newRecord);
+      registryData.unshift({ name, id: id5, temp, ticket: formattedTicket, time: timeStr });
       localStorage.setItem('dusty_registry', JSON.stringify(registryData));
       syncState();
 
@@ -736,9 +698,7 @@
       document.getElementById('totalCheckinCount').textContent = registryData.length;
 
       const filtered = registryData.filter(item => 
-        item.name.toLowerCase().includes(kw) || 
-        item.id.toLowerCase().includes(kw) ||
-        item.ticket.includes(kw)
+        item.name.toLowerCase().includes(kw) || item.id.toLowerCase().includes(kw) || item.ticket.includes(kw)
       );
 
       if (filtered.length === 0) {
@@ -757,7 +717,7 @@
       `).join('');
     }
 
-    // 對照號碼
+    // 對照號碼與分站指引
     function checkQueueStatus() {
       const myNum = parseInt(document.getElementById('myNumberInput').value);
       const res = document.getElementById('queueResult');
@@ -768,101 +728,21 @@
         return;
       }
 
-      const diff = myNum - state.currentCall;
       res.classList.remove('hidden');
-
-      if (diff === 0) {
-        res.className = "p-2.5 rounded-2xl text-xs font-bold text-center bg-emerald-100 text-emerald-900 border-2 border-dusty-dark block animate-pulse";
-        res.innerText = "🎉 正好輪到您囉！請準備進入診間。";
-      } else if (diff > 0 && diff <= 3) {
-        res.className = "p-2.5 rounded-2xl text-xs font-bold text-center bg-dusty-yellow text-dusty-dark border-2 border-dusty-dark block";
-        res.innerText = `⚠️ 快輪到您囉！前方僅剩 ${diff} 人。`;
-      } else if (diff > 3) {
-        res.className = "p-2.5 rounded-2xl text-xs font-bold text-center bg-white text-slate-700 border-2 border-dusty-dark block";
-        res.innerText = `還需等候約 ${diff} 人，請安心休息。`;
-      } else {
+      if (myNum <= state.station3) {
         res.className = "p-2.5 rounded-2xl text-xs font-bold text-center bg-slate-200 text-slate-700 border-2 border-dusty-dark block";
-        res.innerText = `您的號碼已過號，請洽現場醫護協助進行補號。`;
+        res.innerText = "您的號碼已完成注射或已過號。";
+      } else if (myNum <= state.station2) {
+        res.className = "p-2.5 rounded-2xl text-xs font-bold text-center bg-dusty-mint text-dusty-mintText border-2 border-dusty-dark block";
+        res.innerText = "💉 請前往【3. 注射診間】準備接種！";
+      } else if (myNum <= state.station1) {
+        res.className = "p-2.5 rounded-2xl text-xs font-bold text-center bg-dusty-yellow text-dusty-dark border-2 border-dusty-dark block";
+        res.innerText = "🩺 請前往【2. 醫師問診區】等候評估！";
+      } else {
+        const diff = myNum - state.station1;
+        res.className = "p-2.5 rounded-2xl text-xs font-bold text-center bg-white text-slate-700 border-2 border-dusty-dark block";
+        res.innerText = `尚未叫號，目前進行至第1站 45 號，您還需等候約 ${diff} 人。`;
       }
-    }
-
-    // 計時器
-    let timer = { totalSec: 900, remSec: 900, id: null, isPaused: false };
-
-    function startTimer(min) {
-      clearInterval(timer.id);
-      timer.totalSec = min * 60;
-      timer.remSec = min * 60;
-      timer.isPaused = false;
-
-      document.getElementById('timerStatusLabel').innerText = `留觀中 (${min} 分鐘)`;
-      document.getElementById('timerControls').classList.remove('hidden');
-
-      updateTimerUI();
-      timer.id = setInterval(() => {
-        if (!timer.isPaused) {
-          timer.remSec--;
-          updateTimerUI();
-          if (timer.remSec <= 0) {
-            clearInterval(timer.id);
-            onTimerFinish();
-          }
-        }
-      }, 1000);
-    }
-
-    function updateTimerUI() {
-      const m = Math.floor(timer.remSec / 60).toString().padStart(2, '0');
-      const s = (timer.remSec % 60).toString().padStart(2, '0');
-      document.getElementById('timerDisplay').innerText = `${m}:${s}`;
-
-      const circle = document.getElementById('timerCircle');
-      const frac = timer.remSec / timer.totalSec;
-      circle.style.strokeDashoffset = 264 * (1 - frac);
-    }
-
-    function togglePauseTimer() {
-      timer.isPaused = !timer.isPaused;
-      document.getElementById('pauseBtn').innerText = timer.isPaused ? "繼續" : "暫停";
-    }
-
-    function resetTimer() {
-      clearInterval(timer.id);
-      timer.remSec = 900;
-      document.getElementById('timerDisplay').innerText = "15:00";
-      document.getElementById('timerStatusLabel').innerText = "尚未開始";
-      document.getElementById('timerCircle').style.strokeDashoffset = 0;
-      document.getElementById('timerControls').classList.add('hidden');
-    }
-
-    function onTimerFinish() {
-      document.getElementById('timerStatusLabel').innerText = "✅ 留觀完成！";
-      alert("🎉 留觀時間結束！若無特別不適即可離場。感謝您的配合！");
-
-      if (document.getElementById('soundToggle').checked) {
-        playChime();
-      }
-
-      if (typeof confetti === 'function') {
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-      }
-    }
-
-    function playChime() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        [523.25, 659.25, 783.99].forEach((f, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.1);
-          gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.1);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.5);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + i * 0.1);
-          osc.stop(ctx.currentTime + i * 0.1 + 0.5);
-        });
-      } catch (e) {}
     }
 
     // 衛教問答
@@ -940,9 +820,7 @@
       document.getElementById('surveyForm').reset();
       initStars();
       document.getElementById('surveySuccessMsg').classList.remove('hidden');
-      setTimeout(() => {
-        document.getElementById('surveySuccessMsg').classList.add('hidden');
-      }, 4000);
+      setTimeout(() => { document.getElementById('surveySuccessMsg').classList.add('hidden'); }, 4000);
 
       renderSurveys();
     }
@@ -966,13 +844,20 @@
       `).join('');
     }
 
-    // 頁籤與 Modal 邏輯
+    // 頁籤切換與底部色塊連動
     function switchTab(key) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-dusty-dark', 'text-slate-400'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold transition-all";
+      });
 
       document.getElementById(`tab-${key}`).classList.remove('hidden');
-      document.getElementById(`nav-${key}`).classList.replace('text-slate-400', 'text-dusty-dark');
+      
+      const activeBtn = document.getElementById(`nav-${key}`);
+      if (key === 'calling') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435] transition-all";
+      if (key === 'info') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-yellow border-2 border-dusty-dark text-dusty-yellowText font-bold shadow-[2px_2px_0px_#3D3435] transition-all";
+      if (key === 'quiz') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-purple border-2 border-dusty-dark text-dusty-purpleText font-bold shadow-[2px_2px_0px_#3D3435] transition-all";
+      if (key === 'survey') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-cream border-2 border-dusty-dark text-dusty-dark font-bold shadow-[2px_2px_0px_#3D3435] transition-all";
     }
 
     function toggleRoleModal() {
@@ -988,15 +873,21 @@
       }
     }
 
-    function changeNum(delta) {
-      state.currentCall = Math.max(1, state.currentCall + delta);
-      document.getElementById('adminCallInput').value = state.currentCall;
+    function changeStationNum(stationId, delta) {
+      if (stationId === 1) state.station1 = Math.max(1, state.station1 + delta);
+      if (stationId === 2) state.station2 = Math.max(1, state.station2 + delta);
+      if (stationId === 3) state.station3 = Math.max(1, state.station3 + delta);
+      document.getElementById(`adminCall1`).value = state.station1;
+      document.getElementById(`adminCall2`).value = state.station2;
+      document.getElementById(`adminCall3`).value = state.station3;
     }
 
-    function saveCallNum() {
-      state.currentCall = parseInt(document.getElementById('adminCallInput').value) || 1;
+    function saveAllStations() {
+      state.station1 = parseInt(document.getElementById('adminCall1').value) || 1;
+      state.station2 = parseInt(document.getElementById('adminCall2').value) || 1;
+      state.station3 = parseInt(document.getElementById('adminCall3').value) || 1;
       syncState();
-      alert("號碼已更新！");
+      alert("三站號碼已同步更新！");
     }
 
     function sendBroadcast() {
