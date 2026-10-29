@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>流感疫苗接種小助手 🧸 | 莫蘭迪灰粉手繪版</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dusty: {
+              pink: '#DC9B9B',       // 主色：莫蘭迪灰粉 (參考圖片底色)
+              pinkLight: '#E8B4B4',  // 淺灰粉
+              pinkBg: '#EAA8A8',     // 網頁背景灰粉
+              cardBg: '#FFF9F8',     // 卡片暖白背景
+              mint: '#D8E2DC',       // 莫蘭迪灰綠
+              mintText: '#3B5349',
+              cream: '#FFE5EC',      // 柔奶油粉
+              yellow: '#FBE8A6',     // 莫蘭迪黃
+              yellowText: '#6A5618',
+              blue: '#D2E3ED',       // 莫蘭迪灰藍
+              blueText: '#2B4A5E',
+              purple: '#E2D4E0',     // 莫蘭迪灰紫
+              purpleText: '#5A3D55',
+              dark: '#3D3435'        // 手繪風格深灰粗邊線
+            }
+          },
+          fontFamily: {
+            sans: ['"Rounded Mplus 1c"', '"Chalkboard SE"', '"JhengHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 莫蘭迪灰粉色調與極低調波點 */
+    body {
+      background-color: #E69D9D;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.25) 18%, transparent 18%), radial-gradient(rgba(255, 255, 255, 0.25) 18%, transparent 18%);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+      color: #3D3435;
+    }
+
+    /* 手繪質感邊框卡片 */
+    .hand-card {
+      background-color: #FFF9F8;
+      border: 2.5px solid #3D3435;
+      border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+      box-shadow: 3px 4px 0px #3D3435;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .hand-btn {
+      border: 2px solid #3D3435;
+      border-radius: 20px 8px 18px 10px;
+      box-shadow: 2px 3px 0px #3D3435;
+      transition: all 0.15s ease;
+    }
+    .hand-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px #3D3435;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+
+<body class="h-full antialiased font-sans flex flex-col justify-between select-none">
+
+  <!-- 主容器 -->
+  <div class="max-w-md mx-auto w-full min-h-screen flex flex-col bg-dusty-pinkBg/30 border-x-2 border-dusty-dark shadow-2xl relative pb-20 overflow-x-hidden">
+
+    <!-- 頂部 Header 與手繪動物橫幅 -->
+    <header class="bg-white p-4 sticky top-0 z-30 border-b-2 border-dusty-dark shadow-sm">
+      <div class="flex justify-between items-center mb-2">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-full bg-dusty-pink flex items-center justify-center text-white border-2 border-dusty-dark font-black text-lg">
+            💉
+          </div>
+          <div>
+            <h1 class="text-base font-black text-dusty-dark tracking-wide flex items-center gap-1">
+              流感疫苗接種小助手
+            </h1>
+            <p class="text-[10px] text-slate-500 font-bold">莫蘭迪溫馨手繪版 🌸</p>
+          </div>
+        </div>
+
+        <!-- 身分切換按鈕 -->
+        <button onclick="toggleRoleModal()" class="hand-btn bg-dusty-purple text-dusty-purpleText text-xs px-2.5 py-1 font-bold flex items-center gap-1">
+          <span>👩‍⚕️</span>
+          <span id="roleLabel">醫護入口</span>
+        </button>
+      </div>
+
+      <!-- JBB Style 手繪插畫小動物插圖群 -->
+      <div class="pt-2 border-t border-slate-200 flex justify-around items-end h-16 overflow-hidden px-1">
+        <!-- 兔子插畫 (戴耳機) -->
+        <svg class="w-10 h-14 shrink-0" viewBox="0 0 50 70">
+          <path d="M15 25 C10 10 18 5 20 20 C22 5 30 10 25 25" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="20" cy="35" rx="12" ry="14" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="16" cy="32" r="1.5" fill="#3D3435"/><circle cx="24" cy="32" r="1.5" fill="#3D3435"/>
+          <path d="M 18 37 Q 20 39 22 37" fill="none" stroke="#3D3435" stroke-width="2"/>
+          <path d="M 8 32 C 8 20 32 20 32 32" fill="none" stroke="#DC9B9B" stroke-width="3"/>
+          <path d="M 10 49 L 30 49 L 28 65 L 12 65 Z" fill="#FBE8A6" stroke="#3D3435" stroke-width="2"/>
+        </svg>
+
+        <!-- 小熊插畫 -->
+        <svg class="w-12 h-14 shrink-0" viewBox="0 0 60 70">
+          <circle cx="16" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="44" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="30" cy="33" rx="16" ry="15" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="30" cy="36" rx="6" ry="4" fill="#FFF9F8" stroke="#3D3435" stroke-width="1.5"/>
+          <circle cx="30" cy="35" r="1.5" fill="#3D3435"/>
+          <circle cx="23" cy="31" r="1.5" fill="#3D3435"/><circle cx="37" cy="31" r="1.5" fill="#3D3435"/>
+          <path d="M 16 48 L 44 48 L 40 66 L 20 66 Z" fill="#D8E2DC" stroke="#3D3435" stroke-width="2.5"/>
+        </svg>
+
+        <!-- 貓咪插畫 (戴護士帽/針筒) -->
+        <svg class="w-11 h-14 shrink-0" viewBox="0 0 50 70">
+          <polygon points="12,24 20,10 24,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <polygon points="38,24 30,10 26,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="25" cy="34" rx="14" ry="13" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="20" cy="32" r="1.5" fill="#3D3435"/><circle cx="30" cy="32" r="1.5" fill="#3D3435"/>
+          <polygon points="25,35 23,37 27,37" fill="#DC9B9B"/>
+          <path d="M 12 47 L 38 47 L 35 65 L 15 65 Z" fill="#E2D4E0" stroke="#3D3435" stroke-width="2.5"/>
+          <!-- 愛心刺繡 -->
+          <path d="M 23 54 C 23 50 27 50 25 57 C 23 50 27 50 25 57" fill="#DC9B9B"/>
+        </svg>
+
+        <!-- 小狗插畫 -->
+        <svg class="w-11 h-14 shrink-0" viewBox="0 0 50 70">
+          <ellipse cx="12" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
+          <ellipse cx="38" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
+          <ellipse cx="25" cy="33" rx="13" ry="12" fill="#E8B4B4" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="20" cy="31" r="1.5" fill="#3D3435"/><circle cx="30" cy="31" r="1.5" fill="#3D3435"/>
+          <ellipse cx="25" cy="35" rx="3" ry="2" fill="#3D3435"/>
+          <path d="M 13 45 L 37 45 L 34 65 L 16 65 Z" fill="#D2E3ED" stroke="#3D3435" stroke-width="2.5"/>
+        </svg>
+      </div>
+    </header>
+
+    <!-- 現場廣播 Banner -->
+    <div id="broadcastBanner" class="mx-4 mt-3 bg-dusty-yellow p-3 rounded-2xl border-2 border-dusty-dark text-xs font-bold text-dusty-yellowText flex items-center justify-between shadow-sm hidden">
+      <div class="flex items-center gap-2 overflow-hidden">
+        <span class="text-base">📢</span>
+        <span id="broadcastText" class="truncate">廣播加載中...</span>
+      </div>
+      <button onclick="dismissBroadcast()" class="px-1 text-amber-900 hover:text-black">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- 環安室職護緊急諮詢卡片 (新增) -->
+    <div class="mx-4 mt-3 bg-white p-3 rounded-2xl border-2 border-dusty-dark shadow-sm flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-dusty-pink/30 flex items-center justify-center text-dusty-dark font-black text-base shrink-0 border border-dusty-dark">
+          📞
+        </div>
+        <div>
+          <p class="text-[10px] text-slate-500 font-bold">上班時間緊急諮詢專線</p>
+          <p class="text-xs font-black text-dusty-dark">環安室職護 分機 <span class="text-rose-600 text-sm font-extrabold">3884</span></p>
+        </div>
+      </div>
+      <a href="tel:3884" class="hand-btn bg-dusty-pink text-white text-xs font-bold px-3 py-1.5 shrink-0 flex items-center gap-1">
+        <span>撥打</span>
+        <i class="fa-solid fa-phone text-[10px]"></i>
+      </a>
+    </div>
+
+    <!-- 主要內容區 -->
+    <main class="flex-1 p-4 space-y-4 overflow-y-auto no-scrollbar">
+
+      <!-- ==================== TAB 1: 現場叫號 ==================== -->
+      <section id="tab-calling" class="tab-content space-y-4">
+        <!-- 叫號色塊卡片 (莫蘭迪灰綠主題) -->
+        <div class="hand-card bg-dusty-mint p-5 text-center relative overflow-hidden">
+          <div class="inline-flex items-center gap-1.5 bg-white text-dusty-mintText text-xs font-bold px-3 py-1 rounded-full border border-dusty-dark">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            診間即時叫號
+          </div>
+          
+          <div class="my-3 flex justify-center items-baseline gap-1">
+            <span id="currentCallDisplay" class="text-6xl font-black text-dusty-dark tracking-tight">042</span>
+            <span class="text-dusty-mintText font-bold text-base">號</span>
+          </div>
+
+          <p class="text-[11px] text-slate-600 font-bold">
+            <i class="fa-regular fa-clock mr-1"></i>最後更新：<span id="lastUpdatedDisplay">剛才</span>
+          </p>
+        </div>
+
+        <!-- 個人號碼對照卡片 (莫蘭迪奶油黃主題) -->
+        <div class="hand-card bg-dusty-yellow/60 p-4 space-y-3">
+          <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
+            <span class="text-base">🎫</span> 對照我的號碼牌
+          </h3>
+          <div class="flex gap-2">
+            <input type="number" id="myNumberInput" placeholder="輸入您的號碼 (例: 45)" class="w-full bg-white border-2 border-dusty-dark rounded-2xl px-3 py-2 text-dusty-dark text-sm font-bold text-center focus:outline-none placeholder:text-slate-400">
+            <button onclick="checkQueueStatus()" class="hand-btn bg-dusty-yellow text-dusty-dark font-bold px-4 py-2 text-xs shrink-0">
+              🔍 對照
+            </button>
+          </div>
+          <div id="queueResult" class="hidden p-3 rounded-2xl text-xs font-bold text-center border-2 border-dusty-dark"></div>
+        </div>
+
+        <!-- 接種溫馨三步驟 (莫蘭迪灰粉主題) -->
+        <div class="hand-card bg-dusty-pink/30 p-4 space-y-2 text-xs text-dusty-dark">
+          <p class="font-bold flex items-center gap-1">
+            <span>🌸</span> 接種三步驟手繪指南：
+          </p>
+          <ul class="list-disc list-inside space-y-1 font-medium pl-1 text-slate-700">
+            <li>注意號碼並至診間進行醫師健康評估。</li>
+            <li>完成接種後移動至現場留觀區休息。</li>
+            <li>開啟本頁面「留觀計時器」倒數 15 分鐘。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: 留觀計時器 ==================== -->
+      <section id="tab-timer" class="tab-content space-y-4 hidden">
+        <div class="hand-card bg-white p-5 text-center space-y-4">
+          <div class="inline-block bg-dusty-purple text-dusty-purpleText border border-dusty-dark text-xs font-bold px-3 py-1 rounded-full">
+            ⏱️ 接種後留觀計時器
+          </div>
+          <p class="text-xs text-slate-500 font-bold">接種後請在現場休息 15~30 分鐘，無不適再離開喔。</p>
+
+          <!-- 倒數計時器大字體 -->
+          <div class="relative w-44 h-44 mx-auto flex items-center justify-center">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" stroke-width="7" stroke="#E2D4E0" fill="transparent"></circle>
+              <circle id="timerCircle" cx="50" cy="50" r="42" stroke-width="7" stroke="#3D3435" class="transition-all duration-1000" stroke-linecap="round" fill="transparent" stroke-dasharray="264" stroke-dashoffset="0"></circle>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span id="timerDisplay" class="text-4xl font-black text-dusty-dark tracking-tight">15:00</span>
+              <span id="timerStatusLabel" class="text-[10px] font-bold text-slate-400 mt-1">尚未開始</span>
+            </div>
+          </div>
+
+          <!-- 時間設定按鈕 -->
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="startTimer(15)" class="hand-btn bg-dusty-mint text-dusty-mintText p-3 font-bold text-xs flex flex-col items-center">
+              <span>🍓 開始 15 分鐘</span>
+              <span class="text-[10px] font-normal opacity-80">一般民眾留觀</span>
+            </button>
+            <button onclick="startTimer(30)" class="hand-btn bg-dusty-pink text-white p-3 font-bold text-xs flex flex-col items-center">
+              <span>🎀 開始 30 分鐘</span>
+              <span class="text-[10px] font-normal opacity-90">過敏史/體質敏感</span>
+            </button>
+          </div>
+
+          <!-- 控制選項 -->
+          <div id="timerControls" class="flex gap-2 justify-center hidden">
+            <button onclick="togglePauseTimer()" id="pauseBtn" class="hand-btn bg-slate-100 text-slate-700 px-4 py-1.5 text-xs font-bold">暫停</button>
+            <button onclick="resetTimer()" class="hand-btn bg-rose-100 text-rose-700 px-4 py-1.5 text-xs font-bold">重設</button>
+          </div>
+
+          <!-- 提示音開關 -->
+          <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-600 font-bold">
+            <span>🔔 時間到的聲音提示</span>
+            <input type="checkbox" id="soundToggle" class="accent-dusty-pink w-4 h-4 cursor-pointer" checked>
+          </div>
+        </div>
+
+        <div class="hand-card bg-dusty-blue p-4 text-xs text-dusty-blueText space-y-1">
+          <p class="font-bold flex items-center gap-1 text-dusty-dark">
+            <span>💡</span> 留觀打發時間：
+          </p>
+          <p class="leading-relaxed font-medium">點擊下方「衛教小問答」，完成 3 題解答即可解鎖「今日抗體勇者」小動物勳章卡片！</p>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: 衛教問答 & 勇者勳章 ==================== -->
+      <section id="tab-quiz" class="tab-content space-y-4 hidden">
+        <div id="quizContainerBox" class="hand-card bg-dusty-purple/40 p-5 space-y-4">
+          <div class="flex justify-between items-center text-xs font-bold text-dusty-purpleText border-b border-purple-200 pb-2">
+            <span id="quizProgress">題目 1 / 3</span>
+            <span>🧩 流感衛教迷思大解密</span>
+          </div>
+
+          <h3 id="quizQuestionTitle" class="text-sm font-bold text-dusty-dark leading-relaxed">載入中...</h3>
+
+          <div id="quizOptionsBox" class="space-y-2"></div>
+
+          <div id="quizFeedbackBox" class="hidden p-3 rounded-2xl text-xs font-bold border-2 border-dusty-dark"></div>
+
+          <button id="nextQuizBtn" onclick="nextQuizQuestion()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs hidden">
+            下一題 ✨
+          </button>
+        </div>
+
+        <!-- 數位勇者勳章卡片 (完成後顯示) -->
+        <div id="heroBadgeCard" class="hidden hand-card bg-white p-6 text-center space-y-4 relative overflow-hidden border-2 border-dusty-dark">
+          <div class="inline-block bg-dusty-pink text-white text-xs font-black px-4 py-1.5 rounded-full border border-dusty-dark">
+            🏆 今日抗體勇者認證
+          </div>
+
+          <div class="my-2 flex justify-center">
+            <!-- 勇者小熊頭像 SVG -->
+            <div class="w-24 h-24 rounded-full bg-dusty-cream border-2 border-dusty-dark flex items-center justify-center relative shadow-inner">
+              <svg class="w-16 h-16" viewBox="0 0 60 60">
+                <circle cx="15" cy="18" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2"/>
+                <circle cx="45" cy="18" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2"/>
+                <ellipse cx="30" cy="30" rx="16" ry="15" fill="#B08968" stroke="#3D3435" stroke-width="2"/>
+                <circle cx="23" cy="28" r="1.5" fill="#3D3435"/><circle cx="37" cy="28" r="1.5" fill="#3D3435"/>
+                <path d="M 12 45 L 48 45 L 42 60 L 18 60 Z" fill="#DC9B9B" stroke="#3D3435" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-base font-black text-dusty-dark">打針超勇敢・健康大加分！</h3>
+            <p class="text-xs text-slate-500 font-bold mt-1">恭喜順利完成流感疫苗接種與衛教考驗</p>
+          </div>
+
+          <div class="bg-dusty-mint/40 p-3 rounded-2xl border border-dusty-dark text-xs space-y-2 text-left font-bold">
+            <div class="flex justify-between">
+              <span class="text-slate-500">勇者姓名：</span>
+              <input type="text" id="heroNameInput" value="健康寶貝" class="bg-white border rounded px-2 py-0.5 text-right font-bold w-28 text-dusty-dark">
+            </div>
+            <div class="flex justify-between text-slate-500">
+              <span>認證日期：</span>
+              <span id="badgeTime" class="font-mono text-dusty-dark">2026-10-29</span>
+            </div>
+          </div>
+
+          <div class="bg-dusty-yellow p-3 rounded-2xl border-2 border-dusty-dark text-xs text-dusty-dark text-left flex items-center gap-2">
+            <span class="text-xl">🎁</span>
+            <div>
+              <p class="font-bold">現場兌換提示</p>
+              <p class="text-[11px] font-medium">憑此畫面可至服務台領取衛教小禮物喔！</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: 接種後叮嚀 ==================== -->
+      <section id="tab-info" class="tab-content space-y-4 hidden">
+        <div class="hand-card bg-white p-5 space-y-3">
+          <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
+            <span>🌸</span> 接種後護理注意事項
+          </h2>
+
+          <div class="space-y-2 text-xs font-bold">
+            <div class="bg-dusty-mint p-3 rounded-2xl border border-dusty-dark text-dusty-mintText">
+              <p>💧 多喝水、多休息</p>
+              <p class="font-normal text-[11px] mt-0.5 opacity-90">接種當天請避免劇烈運動，並補充充足水分。</p>
+            </div>
+            <div class="bg-dusty-pink/40 p-3 rounded-2xl border border-dusty-dark text-dusty-dark">
+              <p>🧊 部位紅腫勿揉抓</p>
+              <p class="font-normal text-[11px] mt-0.5 opacity-90">注射部位若有輕微微腫，可適度冷敷，請勿用力捏揉。</p>
+            </div>
+            <div class="bg-dusty-yellow p-3 rounded-2xl border border-dusty-dark text-dusty-yellowText">
+              <p>🤒 發燒觀察與就醫</p>
+              <p class="font-normal text-[11px] mt-0.5 opacity-90">若發燒超過 48 小時，請儘速就醫並主動告知接種史。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hand-card bg-dusty-blue p-4 space-y-3">
+          <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1">
+            <span>☎️</span> 緊急諮詢電話
+          </h3>
+          <div class="space-y-2 text-xs font-bold">
+            <div class="bg-white p-3 rounded-2xl border-2 border-dusty-dark flex items-center justify-between">
+              <div>
+                <p class="text-[10px] text-slate-500">廠區/校園 上班時間諮詢</p>
+                <p class="text-xs font-black text-dusty-dark">環安室職護 分機 3884</p>
+              </div>
+              <a href="tel:3884" class="hand-btn bg-dusty-blueText text-white text-xs px-3 py-1.5 font-bold">直撥 3884</a>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs font-bold pt-1">
+              <a href="tel:1922" class="hand-btn bg-white p-2.5 text-center text-dusty-dark block">
+                🎧 疾管署 1922
+              </a>
+              <a href="tel:119" class="hand-btn bg-dusty-pink p-2.5 text-white text-center block">
+                🚑 緊急救護 119
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 底部導覽列 -->
+    <nav class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-30 flex justify-around py-2 rounded-t-3xl shadow-lg">
+      <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center gap-0.5 text-dusty-dark font-bold">
+        <span class="text-base">📢</span>
+        <span class="text-[10px]">叫號進度</span>
+      </button>
+      <button onclick="switchTab('timer')" id="nav-timer" class="nav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 font-bold">
+        <span class="text-base">⏱️</span>
+        <span class="text-[10px]">留觀計時</span>
+      </button>
+      <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 font-bold">
+        <span class="text-base">🎮</span>
+        <span class="text-[10px]">衛教問答</span>
+      </button>
+      <button onclick="switchTab('info')" id="nav-info" class="nav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 font-bold">
+        <span class="text-base">🌸</span>
+        <span class="text-[10px]">接種叮嚀</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- 醫護人員控制台 Modal -->
+  <div id="roleModal" class="fixed inset-0 bg-dusty-dark/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="hand-card bg-white max-w-sm w-full p-6 space-y-4 relative">
+      <button onclick="toggleRoleModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <h3 class="text-base font-bold text-dusty-dark flex items-center gap-2">
+        <span>👩‍⚕️</span> 醫護人員控制台
+      </h3>
+
+      <div id="authBox" class="space-y-3">
+        <p class="text-xs text-slate-500 font-bold">請輸入解鎖 PIN 碼 (預設: <span class="font-mono font-bold text-dusty-dark">8888</span>)</p>
+        <input type="password" id="pinInput" placeholder="PIN 碼" class="w-full bg-slate-50 border-2 border-dusty-dark rounded-2xl px-3 py-2 text-center text-sm font-bold">
+        <button onclick="verifyPin()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs">驗證解鎖</button>
+      </div>
+
+      <div id="controlBox" class="space-y-4 hidden">
+        <div class="bg-dusty-mint p-3 rounded-2xl border-2 border-dusty-dark space-y-2">
+          <label class="text-xs font-bold text-dusty-mintText block">更新現場叫號：</label>
+          <div class="flex items-center justify-between gap-2">
+            <button onclick="changeNum(-1)" class="hand-btn bg-white w-9 h-9 font-bold text-dusty-dark">-1</button>
+            <input type="number" id="adminCallInput" class="w-20 bg-white border-2 border-dusty-dark rounded-xl py-1 text-center font-bold text-dusty-dark">
+            <button onclick="changeNum(1)" class="hand-btn bg-white w-9 h-9 font-bold text-dusty-dark">+1</button>
+            <button onclick="changeNum(5)" class="hand-btn bg-white w-9 h-9 font-bold text-dusty-dark">+5</button>
+          </div>
+          <button onclick="saveCallNum()" class="hand-btn w-full bg-dusty-mintText text-white text-xs font-bold py-2 mt-1">同步廣播號碼</button>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-dusty-dark block">推播現場廣播：</label>
+          <input type="text" id="adminBroadcastInput" placeholder="例如：打完針請至留觀區休息" class="w-full bg-slate-50 border-2 border-dusty-dark rounded-2xl px-3 py-2 text-xs font-bold">
+          <button onclick="sendBroadcast()" class="hand-btn w-full bg-dusty-yellow text-dusty-dark font-bold py-2 text-xs">發布廣播</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    let state = {
+      currentCall: 42,
+      broadcastMsg: "打完針請至留觀區休息 15 分鐘喔！🌸",
+      lastUpdated: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('dusty_vaccine_channel') : null;
+
+    function init() {
+      const stored = localStorage.getItem('dusty_call_num');
+      if (stored) state.currentCall = parseInt(stored);
+
+      const storedMsg = localStorage.getItem('dusty_broadcast');
+      if (storedMsg) state.broadcastMsg = storedMsg;
+
+      updateUI();
+
+      if (channel) {
+        channel.onmessage = (e) => {
+          if (e.data.type === 'SYNC') {
+            state.currentCall = e.data.currentCall;
+            state.broadcastMsg = e.data.broadcastMsg;
+            state.lastUpdated = e.data.lastUpdated;
+            updateUI();
+          }
+        };
+      }
+    }
+
+    function syncState() {
+      state.lastUpdated = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+      localStorage.setItem('dusty_call_num', state.currentCall);
+      localStorage.setItem('dusty_broadcast', state.broadcastMsg);
+
+      if (channel) {
+        channel.postMessage({ type: 'SYNC', ...state });
+      }
+      updateUI();
+    }
+
+    function updateUI() {
+      document.getElementById('currentCallDisplay').innerText = state.currentCall.toString().padStart(3, '0');
+      document.getElementById('lastUpdatedDisplay').innerText = state.lastUpdated;
+
+      const banner = document.getElementById('broadcastBanner');
+      if (state.broadcastMsg && state.broadcastMsg.trim() !== '') {
+        document.getElementById('broadcastText').innerText = state.broadcastMsg;
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+
+      document.getElementById('adminCallInput').value = state.currentCall;
+    }
+
+    function dismissBroadcast() {
+      document.getElementById('broadcastBanner').classList.add('hidden');
+    }
+
+    // Queue Status Check
+    function checkQueueStatus() {
+      const myNum = parseInt(document.getElementById('myNumberInput').value);
+      const res = document.getElementById('queueResult');
+
+      if (!myNum || isNaN(myNum)) {
+        res.className = "p-3 rounded-2xl text-xs font-bold text-center bg-rose-100 text-rose-800 border-2 border-dusty-dark block";
+        res.innerText = "請輸入正確的號碼牌數字喔！";
+        return;
+      }
+
+      const diff = myNum - state.currentCall;
+      res.classList.remove('hidden');
+
+      if (diff === 0) {
+        res.className = "p-3 rounded-2xl text-xs font-bold text-center bg-emerald-100 text-emerald-900 border-2 border-dusty-dark block animate-pulse";
+        res.innerText = "🎉 正好輪到您囉！請準備進入診間。";
+      } else if (diff > 0 && diff <= 3) {
+        res.className = "p-3 rounded-2xl text-xs font-bold text-center bg-dusty-yellow text-dusty-dark border-2 border-dusty-dark block";
+        res.innerText = `⚠️ 快輪到您囉！前方僅剩 ${diff} 人。`;
+      } else if (diff > 3) {
+        res.className = "p-3 rounded-2xl text-xs font-bold text-center bg-white text-slate-700 border-2 border-dusty-dark block";
+        res.innerText = `還需等候約 ${diff} 人，請安心休息。`;
+      } else {
+        res.className = "p-3 rounded-2xl text-xs font-bold text-center bg-slate-200 text-slate-700 border-2 border-dusty-dark block";
+        res.innerText = `您的號碼已過號，請洽現場醫護協助進行補號。`;
+      }
+    }
+
+    // Observation Timer
+    let timer = { totalSec: 900, remSec: 900, id: null, isPaused: false };
+
+    function startTimer(min) {
+      clearInterval(timer.id);
+      timer.totalSec = min * 60;
+      timer.remSec = min * 60;
+      timer.isPaused = false;
+
+      document.getElementById('timerStatusLabel').innerText = `留觀中 (${min} 分鐘)`;
+      document.getElementById('timerControls').classList.remove('hidden');
+
+      updateTimerUI();
+      timer.id = setInterval(() => {
+        if (!timer.isPaused) {
+          timer.remSec--;
+          updateTimerUI();
+          if (timer.remSec <= 0) {
+            clearInterval(timer.id);
+            onTimerFinish();
+          }
+        }
+      }, 1000);
+    }
+
+    function updateTimerUI() {
+      const m = Math.floor(timer.remSec / 60).toString().padStart(2, '0');
+      const s = (timer.remSec % 60).toString().padStart(2, '0');
+      document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+
+      const circle = document.getElementById('timerCircle');
+      const frac = timer.remSec / timer.totalSec;
+      circle.style.strokeDashoffset = 264 * (1 - frac);
+    }
+
+    function togglePauseTimer() {
+      timer.isPaused = !timer.isPaused;
+      document.getElementById('pauseBtn').innerText = timer.isPaused ? "繼續" : "暫停";
+    }
+
+    function resetTimer() {
+      clearInterval(timer.id);
+      timer.remSec = 900;
+      document.getElementById('timerDisplay').innerText = "15:00";
+      document.getElementById('timerStatusLabel').innerText = "尚未開始";
+      document.getElementById('timerCircle').style.strokeDashoffset = 0;
+      document.getElementById('timerControls').classList.add('hidden');
+    }
+
+    function onTimerFinish() {
+      document.getElementById('timerStatusLabel').innerText = "✅ 留觀完成！";
+      alert("🎉 留觀時間結束！若無特別不適即可離場。感謝您的配合！");
+
+      if (document.getElementById('soundToggle').checked) {
+        playChime();
+      }
+
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+      }
+    }
+
+    function playChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [523.25, 659.25, 783.99].forEach((f, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.frequency.setValueAtTime(f, ctx.currentTime + i * 0.1);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.5);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + i * 0.1);
+          osc.stop(ctx.currentTime + i * 0.1 + 0.5);
+        });
+      } catch (e) {}
+    }
+
+    // Quiz Data
+    const quizList = [
+      { q: "1. 打完流感疫苗就不會得到普通感冒了嗎？", opts: [{ t: "⭕ 對，完全免疫", c: false }, { t: "❌ 錯，流感與一般感冒不同", c: true }], exp: "正確！流感疫苗主要預防重症流感，對一般感冒病毒無效喔。" },
+      { q: "2. 打完針之後，注射部位需要大力揉搓嗎？", opts: [{ t: "⭕ 需要用力揉促吸收", c: false }, { t: "❌ 切勿用力揉，輕壓即可", c: true }], exp: "答對囉！打完針後只需輕壓即可，用力揉容易造成局部紅腫皮下出血。" },
+      { q: "3. 打完疫苗需要在現場留觀多久？", opts: [{ t: "A. 打完立刻回家", c: false }, { t: "B. 原地休息 15~30 分鐘", c: true }], exp: "太棒了！現場留觀可確保萬一有過敏反應時能獲得即時醫護照護。" }
+    ];
+
+    let quizIdx = 0;
+
+    function renderQuiz() {
+      const q = quizList[quizIdx];
+      document.getElementById('quizProgress').innerText = `題目 ${quizIdx + 1} / ${quizList.length}`;
+      document.getElementById('quizQuestionTitle').innerText = q.q;
+
+      const box = document.getElementById('quizOptionsBox');
+      box.innerHTML = '';
+      q.opts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = "hand-btn w-full text-left p-3 bg-white text-xs font-bold text-dusty-dark hover:bg-dusty-purple/30 transition";
+        btn.innerText = opt.t;
+        btn.onclick = () => selectQuizOpt(opt, btn);
+        box.appendChild(btn);
+      });
+
+      document.getElementById('quizFeedbackBox').classList.add('hidden');
+      document.getElementById('nextQuizBtn').classList.add('hidden');
+    }
+
+    function selectQuizOpt(opt, btn) {
+      const fb = document.getElementById('quizFeedbackBox');
+      fb.classList.remove('hidden');
+
+      if (opt.c) {
+        btn.className = "hand-btn w-full text-left p-3 bg-emerald-100 text-xs font-bold text-emerald-900";
+        fb.className = "p-3 rounded-2xl text-xs bg-emerald-100 text-emerald-900 font-bold block border-2 border-dusty-dark";
+        fb.innerText = `🎉 答對了！${quizList[quizIdx].exp}`;
+      } else {
+        btn.className = "hand-btn w-full text-left p-3 bg-rose-100 text-xs font-bold text-rose-900";
+        fb.className = "p-3 rounded-2xl text-xs bg-rose-100 text-rose-900 font-bold block border-2 border-dusty-dark";
+        fb.innerText = `❌ 差一點點！${quizList[quizIdx].exp}`;
+      }
+
+      document.getElementById('nextQuizBtn').classList.remove('hidden');
+    }
+
+    function nextQuizQuestion() {
+      quizIdx++;
+      if (quizIdx < quizList.length) {
+        renderQuiz();
+      } else {
+        document.getElementById('quizContainerBox').classList.add('hidden');
+        document.getElementById('heroBadgeCard').classList.remove('hidden');
+        if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70 });
+      }
+    }
+
+    // Navigation & Role Modal
+    function switchTab(key) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-dusty-dark', 'text-slate-400'));
+
+      document.getElementById(`tab-${key}`).classList.remove('hidden');
+      document.getElementById(`nav-${key}`).classList.replace('text-slate-400', 'text-dusty-dark');
+    }
+
+    function toggleRoleModal() {
+      document.getElementById('roleModal').classList.toggle('hidden');
+    }
+
+    function verifyPin() {
+      if (document.getElementById('pinInput').value === '8888') {
+        document.getElementById('authBox').classList.add('hidden');
+        document.getElementById('controlBox').classList.remove('hidden');
+      } else {
+        alert("PIN 碼錯誤！");
+      }
+    }
+
+    function changeNum(delta) {
+      state.currentCall = Math.max(1, state.currentCall + delta);
+      document.getElementById('adminCallInput').value = state.currentCall;
+    }
+
+    function saveCallNum() {
+      state.currentCall = parseInt(document.getElementById('adminCallInput').value) || 1;
+      syncState();
+      alert("叫號已更新！");
+    }
+
+    function sendBroadcast() {
+      state.broadcastMsg = document.getElementById('adminBroadcastInput').value;
+      syncState();
+      alert("廣播已發布！");
+    }
+
+    window.onload = function() {
+      init();
+      renderQuiz();
+    };
+  </script>
+</body>
+</html>
