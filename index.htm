@@ -24,7 +24,7 @@
     const db = getDatabase(app);
     const stateRef = ref(db, 'vaccine_state');
 
-    // 全域狀態（含叫號、雲端報到名冊、雲端問卷）
+    // 全域狀態（含叫號、雲端報到名冊、完整雲端問卷）
     window.state = {
       station1: 0,
       station2: 0,
@@ -154,8 +154,8 @@
           </h3>
           <div class="space-y-2">
             <div>
-              <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">姓名/英文名/綽號：</label>
-              <input type="text" id="checkinName" placeholder="例如：王大明 / Alex Wang" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
+              <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">姓名 / 綽號：</label>
+              <input type="text" id="checkinName" placeholder="例如：王大明" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">身分證號末 5 碼：</label>
@@ -187,18 +187,24 @@
         </div>
       </section>
 
-      <!-- TAB 2: 接種須知 -->
+      <!-- TAB 2: 接種須知（完整保留多喝水與注意事項） -->
       <section id="tab-info" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-white p-5 space-y-3">
-          <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5"><span>✨</span> 接種後注意事項</h2>
+          <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
+            <span>✨</span> 接種後注意事項
+          </h2>
           <div class="space-y-2 text-xs font-bold">
             <div class="bg-dusty-mint p-3 rounded-2xl border border-dusty-dark text-dusty-mintText">
               <p>💧 多喝水、多休息</p>
-              <p class="font-normal text-[11px] mt-0.5 opacity-90">接種當天請避免劇烈運動，補充充足水分。</p>
+              <p class="font-normal text-[11px] mt-0.5 opacity-90">接種當天請避免劇烈運動，並補充充足水分。</p>
             </div>
             <div class="bg-dusty-pink/40 p-3 rounded-2xl border border-dusty-dark text-dusty-dark">
               <p>🧊 部位紅腫勿揉抓</p>
-              <p class="font-normal text-[11px] mt-0.5 opacity-90">若微腫可適度冷敷，切勿用力大力揉捏。</p>
+              <p class="font-normal text-[11px] mt-0.5 opacity-90">注射部位若有輕微紅腫，可適度冷敷，請勿用力捏揉。</p>
+            </div>
+            <div class="bg-dusty-yellow p-3 rounded-2xl border border-dusty-dark text-dusty-yellowText">
+              <p>🤒 發燒觀察與留觀</p>
+              <p class="font-normal text-[11px] mt-0.5 opacity-90">打完針請於現場留觀 15~30 分鐘，若發燒超過 48 小時請儘速就醫。</p>
             </div>
           </div>
         </div>
@@ -230,19 +236,22 @@
             <span class="text-2xl">🎁</span>
             <div>
               <p class="font-bold">現場兌換紀念小禮物</p>
-              <p class="text-[11px] font-medium">請向服務台出示此勇者勳章畫面，即可領取 2026 紀念貼紙！</p>
+              <p class="text-[11px] font-medium">請向服務台出示此勇者勳章畫面，即可領取紀念小禮物！</p>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- TAB 4: 雲端滿意度問卷 -->
+      <!-- TAB 4: 完整 5 星滿意度雲端問卷 -->
       <section id="tab-survey" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-dusty-cream p-5 space-y-4">
           <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
-            <span>⭐</span> 活動滿意度與雲端問卷
+            <span>⭐</span> 活動滿意度與服務問卷
           </h2>
+          <p class="text-[11px] text-slate-600 font-bold">感謝您參與本次接種活動，請點選星星為各項服務評分：</p>
           <form id="surveyForm" onsubmit="submitCloudSurvey(event)" class="space-y-3 text-xs font-bold">
+            
+            <!-- Q1 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">1. 接種流程動線與現場等待時間</p>
               <div class="flex items-center justify-between">
@@ -253,13 +262,14 @@
                   <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q1', 4)"></i>
                   <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q1', 5)"></i>
                 </div>
-                <span class="text-slate-500 text-[11px] q1-label">5分</span>
+                <span class="text-slate-500 text-[11px] q1-label">5分 (非常滿意)</span>
               </div>
               <input type="hidden" id="val-q1" value="5">
             </div>
 
+            <!-- Q2 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
-              <p class="text-dusty-dark">2. 綜合評分與服務態度</p>
+              <p class="text-dusty-dark">2. 場地環境舒適度與指標清晰度</p>
               <div class="flex items-center justify-between">
                 <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q2">
                   <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 1)"></i>
@@ -268,14 +278,63 @@
                   <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 4)"></i>
                   <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 5)"></i>
                 </div>
-                <span class="text-slate-500 text-[11px] q2-label">5分</span>
+                <span class="text-slate-500 text-[11px] q2-label">5分 (非常滿意)</span>
               </div>
               <input type="hidden" id="val-q2" value="5">
             </div>
 
+            <!-- Q3 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
-              <p class="text-dusty-dark">3. 寶貴建議或心得（選填）：</p>
-              <textarea id="q6Comment" rows="2" placeholder="寫下您的建議..." class="hand-input w-full p-2 text-xs font-normal"></textarea>
+              <p class="text-dusty-dark">3. 現場醫護與工作人員服務態度</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q3">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q3-label">5分 (非常滿意)</span>
+              </div>
+              <input type="hidden" id="val-q3" value="5">
+            </div>
+
+            <!-- Q4 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">4. 接種前衛教與注意事項說明清晰度</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q4">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q4-label">5分 (非常清晰)</span>
+              </div>
+              <input type="hidden" id="val-q4" value="5">
+            </div>
+
+            <!-- Q5 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">5. 本次流感疫苗接種活動綜合評價</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q5">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q5-label">5分 (非常滿意)</span>
+              </div>
+              <input type="hidden" id="val-q5" value="5">
+            </div>
+
+            <!-- Q6 開放題 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">6. 您對於未來辦理疫苗接種活動的寶貴建議或心得（選填）：</p>
+              <textarea id="q6Comment" rows="2" placeholder="寫下您的改善建議或想說的話..." class="hand-input w-full p-2 text-xs font-normal"></textarea>
             </div>
             
             <button type="submit" class="hand-btn w-full bg-dusty-mint text-dusty-mintText font-bold py-2.5 text-xs">
@@ -283,7 +342,7 @@
             </button>
           </form>
           <div id="surveySuccessMsg" class="hidden text-xs text-center font-bold text-emerald-800 p-2.5 bg-emerald-100 rounded-2xl border border-dusty-dark">
-            🎉 問卷已成功送達雲端！感謝您的寶貴回饋！
+            🎉 感謝您的寶貴意見！問卷已成功同步至雲端！
           </div>
         </div>
       </section>
@@ -482,31 +541,41 @@
       }
     }
 
-    // 星星互動
+    // 星星互動（支援 5 題）
+    const starLabels = { 1: "1分 (需改善)", 2: "2分 (尚可)", 3: "3分 (普通)", 4: "4分 (滿意)", 5: "5分 (非常滿意)" };
     function setStar(qName, score) {
       document.getElementById(`val-${qName}`).value = score;
       const group = document.querySelector(`.star-group[data-name="${qName}"]`);
       group.querySelectorAll('i').forEach((star, idx) => {
         star.className = idx < score ? "fa-solid fa-star cursor-pointer" : "fa-regular fa-star cursor-pointer text-slate-300";
       });
-      document.querySelector(`.${qName}-label`).innerText = `${score}分`;
+      const labelEl = document.querySelector(`.${qName}-label`);
+      if (labelEl) labelEl.innerText = starLabels[score];
     }
 
-    // 提交雲端問卷
+    // 提交完整 5 題雲端問卷
     function submitCloudSurvey(e) {
       e.preventDefault();
-      const q1 = document.getElementById('val-q1').value;
-      const q2 = document.getElementById('val-q2').value;
-      const q6 = document.getElementById('q6Comment').value.trim() || '無';
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const res = {
+        q1: document.getElementById('val-q1').value,
+        q2: document.getElementById('val-q2').value,
+        q3: document.getElementById('val-q3').value,
+        q4: document.getElementById('val-q4').value,
+        q5: document.getElementById('val-q5').value,
+        q6: document.getElementById('q6Comment').value.trim() || '無',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
 
       if (!window.state.surveys) window.state.surveys = [];
-      window.state.surveys.unshift({ q1, q2, q6, time });
+      window.state.surveys.unshift(res);
       window.syncState();
 
       document.getElementById('surveyForm').reset();
+      ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
+
       document.getElementById('surveySuccessMsg').classList.remove('hidden');
       if (typeof confetti === 'function') confetti({ particleCount: 80 });
+      setTimeout(() => { document.getElementById('surveySuccessMsg').classList.add('hidden'); }, 4000);
     }
 
     function renderRegistry() {
@@ -523,11 +592,12 @@
       document.getElementById('totalSurveyCount').textContent = surveys.length;
       if (surveys.length === 0) { box.innerHTML = `<p class="text-gray-400 text-center">尚無問卷資料</p>`; return; }
       box.innerHTML = surveys.map(s => `
-        <div class="border-b pb-1">
+        <div class="border-b pb-1 mb-1">
           <div class="flex justify-between font-bold text-slate-700">
-            <span>動線:${s.q1}★ 綜合:${s.q2}★</span><span class="text-gray-400">${s.time}</span>
+            <span>綜合評分: ${s.q5}★</span><span class="text-gray-400">${s.time}</span>
           </div>
-          <p class="text-gray-600 bg-white p-1 rounded">建議: ${s.q6}</p>
+          <p class="text-gray-500 text-[9px]">[動線:${s.q1} | 環境:${s.q2} | 態度:${s.q3} | 衛教:${s.q4}]</p>
+          <p class="text-gray-600 bg-white p-1 rounded mt-0.5">建議: ${s.q6}</p>
         </div>
       `).join('');
     }
@@ -540,8 +610,8 @@
         csv += "號碼,姓名,身分證5碼,體溫,時間\n";
         data.forEach(r => csv += `"${r.ticket}","${r.name}","${r.id}","${r.temp}","${r.time}"\n`);
       } else {
-        csv += "動線評分,綜合評分,建議心得,時間\n";
-        data.forEach(s => csv += `"${s.q1}","${s.q2}","${s.q6.replace(/"/g, '""')}","${s.time}"\n`);
+        csv += "填寫時間,Q1動線,Q2環境,Q3態度,Q4衛教,Q5綜合評價,Q6建議心得\n";
+        data.forEach(s => csv += `"${s.time}","${s.q1}","${s.q2}","${s.q3}","${s.q4}","${s.q5}","${s.q6.replace(/"/g, '""')}"\n`);
       }
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -555,7 +625,12 @@
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold");
       document.getElementById(`tab-${key}`).classList.remove('hidden');
-      document.getElementById(`nav-${key}`).className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]";
+      
+      const activeBtn = document.getElementById(`nav-${key}`);
+      if (key === 'calling') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]";
+      if (key === 'info') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-yellow border-2 border-dusty-dark text-dusty-yellowText font-bold shadow-[2px_2px_0px_#3D3435]";
+      if (key === 'quiz') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-purple border-2 border-dusty-dark text-dusty-purpleText font-bold shadow-[2px_2px_0px_#3D3435]";
+      if (key === 'survey') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-cream border-2 border-dusty-dark text-dusty-dark font-bold shadow-[2px_2px_0px_#3D3435]";
     }
 
     function checkQueueStatus() {
@@ -581,6 +656,7 @@
 
     window.onload = function() {
       renderQuiz();
+      ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
     };
   </script>
 </body>
