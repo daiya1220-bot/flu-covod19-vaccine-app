@@ -562,19 +562,15 @@
   <!-- JAVASCRIPT LOGIC -->
   <script>
     let state = {
-      station1: 45,
-      station2: 43,
-      station3: 40,
-      lastTicketNum: 45,
+      station1: 0,
+      station2: 0,
+      station3: 0,
+      lastTicketNum: 0,
       broadcastMsg: "現場廣播：請依現場三站叫號燈號依序前往。✨",
       lastUpdated: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
     };
 
-    let registryData = JSON.parse(localStorage.getItem('dusty_registry')) || [
-      { id: '12345', name: '王大明', temp: '36.5', ticket: '044', time: '09:15' },
-      { id: '67890', name: '陳小華', temp: '36.8', ticket: '045', time: '09:20' }
-    ];
-
+    let registryData = JSON.parse(localStorage.getItem('dusty_registry')) || [];
     let surveyData = JSON.parse(localStorage.getItem('dusty_surveys')) || [];
 
     const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('dusty_vaccine_channel') : null;
