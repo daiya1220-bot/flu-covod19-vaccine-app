@@ -24,7 +24,7 @@
     const db = getDatabase(app);
     const stateRef = ref(db, 'vaccine_state');
 
-    // 全域狀態（含叫號、雲端報到名冊、完整雲端問卷）
+    // 全域狀態（含叫號、雲端報到名冊、完整雲端問卷、即時廣播）
     window.state = {
       station1: 0,
       station2: 0,
@@ -111,8 +111,8 @@
       <button onclick="toggleRoleModal()" class="hand-btn bg-dusty-purple text-dusty-purpleText text-xs px-2.5 py-1.5 font-bold">⚙️ 醫護後台</button>
     </header>
 
-    <!-- 廣播 Banner -->
-    <div id="broadcastBanner" class="mx-4 mt-3 bg-dusty-yellow p-3 rounded-2xl border-2 border-dusty-dark text-xs font-bold text-dusty-yellowText flex items-center justify-between">
+    <!-- 廣播 Banner (即時同步顯示) -->
+    <div id="broadcastBanner" class="mx-4 mt-3 bg-dusty-yellow p-3 rounded-2xl border-2 border-dusty-dark text-xs font-bold text-dusty-yellowText flex items-center justify-between shadow-[2px_2px_0px_#3D3435]">
       <div class="flex items-center gap-2 overflow-hidden">
         <span>📢</span>
         <span id="broadcastText" class="truncate">載入廣播中...</span>
@@ -187,7 +187,7 @@
         </div>
       </section>
 
-      <!-- TAB 2: 接種須知（完整保留多喝水與注意事項） -->
+      <!-- TAB 2: 接種須知 -->
       <section id="tab-info" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-white p-5 space-y-3">
           <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
@@ -236,7 +236,7 @@
             <span class="text-2xl">🎁</span>
             <div>
               <p class="font-bold">現場兌換紀念小禮物</p>
-              <p class="text-[11px] font-medium">請向服務台出示此勇者勳章畫面，即可領取紀念小禮物！</p>
+              <p class="text-[11px] font-medium">請向服務台出示此勇者勳章畫面，即可領取 2026 紀念小禮物！</p>
             </div>
           </div>
         </div>
@@ -350,8 +350,6 @@
 
     <!-- 底部導覽列（含手繪可愛動物圖示） -->
     <nav class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-35 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1">
-      
-      <!-- 叫號報到 (兔子) -->
       <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]">
         <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
           <path d="M15 25 C10 10 18 5 20 20 C22 5 30 10 25 25" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
@@ -360,8 +358,6 @@
         </svg>
         <span class="text-[9px]">叫號報到</span>
       </button>
-
-      <!-- 接種須知 (小熊) -->
       <button onclick="switchTab('info')" id="nav-info" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold">
         <svg class="w-5 h-5 mb-0.5" viewBox="0 0 60 70">
           <circle cx="16" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
@@ -370,8 +366,6 @@
         </svg>
         <span class="text-[9px]">接種須知</span>
       </button>
-
-      <!-- 衛教問答 (小貓) -->
       <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold">
         <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
           <polygon points="12,24 20,10 24,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
@@ -380,8 +374,6 @@
         </svg>
         <span class="text-[9px]">衛教問答</span>
       </button>
-
-      <!-- 活動問卷 (小狗) -->
       <button onclick="switchTab('survey')" id="nav-survey" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold">
         <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
           <ellipse cx="12" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
@@ -393,7 +385,7 @@
     </nav>
   </div>
 
-  <!-- 醫護人員後台 Modal -->
+  <!-- 醫護人員雲端控制台 Modal (內含廣播推播控制) -->
   <div id="roleModal" class="fixed inset-0 bg-dusty-dark/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="hand-card bg-white max-w-sm w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center">
@@ -405,6 +397,8 @@
         <button onclick="verifyPin()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs">解鎖控制</button>
       </div>
       <div id="controlBox" class="space-y-4 hidden">
+        
+        <!-- 三站叫號控制 -->
         <div class="bg-dusty-mint p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
           <div class="flex justify-between items-center"><span>1. 掛號：</span><input type="number" id="adminCall1" class="w-16 border rounded text-center" value="0"></div>
           <div class="flex justify-between items-center"><span>2. 問診：</span><input type="number" id="adminCall2" class="w-16 border rounded text-center" value="0"></div>
@@ -412,6 +406,14 @@
           <button onclick="saveAllStations()" class="hand-btn w-full bg-dusty-mintText text-white py-1.5 mt-1">📡 廣播同步三站號碼</button>
         </div>
 
+        <!-- 📢 推送現場廣播控制區 -->
+        <div class="bg-dusty-yellow/60 p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
+          <label class="block text-dusty-yellowText">📢 推送現場即時廣播公告：</label>
+          <input type="text" id="adminBroadcastInput" placeholder="例如：上午場即將額滿，請加快報到" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold">
+          <button onclick="sendBroadcast()" class="hand-btn w-full bg-dusty-yellow text-dusty-yellowText py-1.5">發布廣播至全場手機</button>
+        </div>
+
+        <!-- 雲端報到名冊 -->
         <div class="space-y-1">
           <div class="flex justify-between items-center">
             <span class="text-xs font-bold">雲端報到名冊 (<span id="totalCheckinCount">0</span> 人)</span>
@@ -422,6 +424,7 @@
           </div>
         </div>
 
+        <!-- 雲端問卷回饋 -->
         <div class="space-y-1 pt-2 border-t border-slate-200">
           <div class="flex justify-between items-center">
             <span class="text-xs font-bold">雲端問卷回饋 (<span id="totalSurveyCount">0</span> 份)</span>
@@ -431,6 +434,7 @@
             <p class="text-gray-400 text-center">尚無問卷資料</p>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -447,6 +451,9 @@
         document.getElementById('adminCall1').value = window.state.station1 || 0;
         document.getElementById('adminCall2').value = window.state.station2 || 0;
         document.getElementById('adminCall3').value = window.state.station3 || 0;
+      }
+      if (document.getElementById('adminBroadcastInput')) {
+        document.getElementById('adminBroadcastInput').value = window.state.broadcastMsg || '';
       }
       renderRegistry();
       renderSurveys();
@@ -466,6 +473,15 @@
       window.state.station3 = parseInt(document.getElementById('adminCall3').value) || 0;
       window.syncState();
       alert("三站號碼已同步至全場！");
+    }
+
+    // 發布廣播至雲端
+    function sendBroadcast() {
+      const msg = document.getElementById('adminBroadcastInput').value.trim();
+      if (!msg) { alert("請輸入廣播內容！"); return; }
+      window.state.broadcastMsg = msg;
+      window.syncState();
+      alert("📢 現場廣播已秒速推播至全場 150 人手機！");
     }
 
     // 民眾自助報到
