@@ -2,7 +2,7 @@
 <html lang="zh-TW" class="h-full">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>環安室疫苗接種小助手 🧸 2026 長庚大學流感·新冠</title>
   
   <!-- Tailwind CSS & Font Awesome -->
@@ -86,6 +86,13 @@
     .hand-input { border: 2px solid #3D3435; border-radius: 12px; outline: none; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* 解決手機鍵盤彈起時遮擋輸入框的問題 */
+    .keyboard-open #bottom-nav {
+      position: absolute !important;
+      bottom: -999px !important;
+      display: none !important;
+    }
   </style>
 </head>
 <body class="h-full antialiased font-sans flex flex-col justify-between select-none">
@@ -327,8 +334,8 @@
         </div>
       </section>
     </main>
-    <!-- 底部導覽列（含手繪可愛動物圖示） -->
-    <nav class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-35 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1">
+    <!-- 底部導覽列（含手繪可愛動物圖示與動態避開軟鍵盤處理） -->
+    <nav id="bottom-nav" class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-35 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1 transition-all duration-200">
       <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]">
         <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
           <path d="M15 25 C10 10 18 5 20 20 C22 5 30 10 25 25" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
@@ -440,6 +447,19 @@
     </div>
   </div>
   <script>
+    // 自動監聽輸入框 focus/blur 事件，打字時自動隱藏底部 Navigation Bar
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputs = document.querySelectorAll('input, textarea');
+      inputs.forEach(input => {
+        input.addEventListener('focus', () => {
+          document.body.classList.add('keyboard-open');
+        });
+        input.addEventListener('blur', () => {
+          document.body.classList.remove('keyboard-open');
+        });
+      });
+    });
+
     window.updateUI = function() {
       document.getElementById('callStation1').innerText = String(window.state.station1 || 0).padStart(3, '0');
       document.getElementById('callStation2').innerText = String(window.state.station2 || 0).padStart(3, '0');
@@ -491,7 +511,7 @@
       window.syncState();
       alert("📢 現場廣播已秒速推播至全場 150 人手機！");
     }
-    // 民眾自助報到
+    // 民眾自主報到
     function submitCloudCheckin() {
       const name = document.getElementById('checkinName').value.trim();
       const id5 = document.getElementById('checkinId').value.trim();
@@ -645,26 +665,43 @@
       if (key === 'quiz') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-purple border-2 border-dusty-dark text-dusty-purpleText font-bold shadow-[2px_2px_0px_#3D3435]";
       if (key === 'survey') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-cream border-2 border-dusty-dark text-dusty-dark font-bold shadow-[2px_2px_0px_#3D3435]";
     }
-    // 依據「每看 1~2 位正常號，插入 1 位過號」規則計算預估進度
+
+    // 依據「過號則現場報到後再等 2 號，每看 1~2 位正常號，插入 1 位過號」規則計算預估進度
     function checkQueueStatus() {
       const myNum = parseInt(document.getElementById('myNumberInput').value);
       const res = document.getElementById('queueResult');
       if (!myNum || isNaN(myNum)) { alert("請輸入有效的號碼！"); return; }
       res.classList.remove('hidden');
       
-      const currentCall = window.state.station1; // 以第1站掛號/問診叫號基準為主
+      const currentCall = window.state.station1; // 以第1站叫號為基準號
+      
       if (myNum <= currentCall) {
-        res.className = "p-2.5 rounded-xl text-xs font-bold text-center bg-slate-200 text-slate-700 border-2 border-dusty-dark block";
-        res.innerHTML = `您的號碼 (${String(myNum).padStart(3,'0')}) 已通過或完成叫號。`;
-      } else {
-        const diff = myNum - currentCall;
-        // 規則套用：每 2 個正常號插 1 個過號，粗估等待順位往後推估
-        const estimatedCallNum = myNum + Math.floor(diff / 2);
-        res.className = "p-2.5 rounded-xl text-xs font-bold text-center bg-white text-slate-700 border-2 border-dusty-dark block space-y-1";
+        // 🚨 這是過號狀況（個人號碼小於或等於目前已看診號碼）
+        // 規則：過號到現場報到後，需再等 2 位正常號，預估會在 (目前叫號 + 2) 號進去看診
+        const overdueArrangeNum = currentCall + 2;
+        res.className = "p-3 rounded-xl text-xs font-bold text-left bg-amber-50 text-dusty-dark border-2 border-dusty-dark block space-y-1";
         res.innerHTML = `
-          <div>目前第 1 站叫到：<b>${String(currentCall).padStart(3,'0')}</b> 號</div>
-          <div class="text-dusty-pink">依「每看 2 位正常號插入 1 位過號」規則推估：</div>
-          <div class="text-[11px] text-slate-600">您大約會被安排在約 <b>${String(estimatedCallNum).padStart(3,'0')} 號</b> 左右進去看診，還要再等候約 ${diff} 位。</div>
+          <div class="flex items-center gap-1 text-rose-600 font-extrabold text-xs">
+            <span>⚠️</span> 您的號碼 (${String(myNum).padStart(3,'0')}) 已過號！
+          </div>
+          <div class="bg-white p-2 rounded-lg border border-dusty-dark text-[11px] leading-relaxed">
+            📌 <b>過號叫號規則說明：</b><br>
+            到達現場報到後需<b>再等候 2 號</b>。護理師每看 1~2 位正常號會插入 1 位過號。<br>
+            目前看診：<b>${String(currentCall).padStart(3,'0')} 號</b> ➔ 預估安排您於 <b>${String(overdueArrangeNum).padStart(3,'0')} 號</b> 插入進去看診。
+          </div>
+        `;
+      } else {
+        // 🟢 正常未過號狀況
+        const diff = myNum - currentCall;
+        const estimatedCallNum = myNum + Math.floor(diff / 2);
+        res.className = "p-3 rounded-xl text-xs font-bold text-left bg-white text-slate-700 border-2 border-dusty-dark block space-y-1";
+        res.innerHTML = `
+          <div class="font-extrabold text-emerald-700">✅ 您的號碼 (${String(myNum).padStart(3,'0')}) 尚未叫到</div>
+          <div class="text-[11px] leading-relaxed">
+            目前第 1 站叫到：<b>${String(currentCall).padStart(3,'0')} 號</b><br>
+            尚需等待約 <b>${diff} 位</b> 正常號碼。<br>
+            <span class="text-slate-500">（考量現場過號插隊規則，預估約在 ${String(estimatedCallNum).padStart(3,'0')} 號前完成）</span>
+          </div>
         `;
       }
     }
