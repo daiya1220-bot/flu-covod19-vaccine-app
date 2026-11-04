@@ -21,17 +21,18 @@
     const db = getDatabase(app);
     const stateRef = ref(db, 'vaccine_state');
     
-    // 全域狀態（新增過號隊列 overdueQueue）
+    // 全域狀態（包含過號自動佇列 overdueQueue）
     window.state = {
       station1: 0,
       station2: 0,
       station3: 0,
       lastTicketNum: 0,
+      overdueTicketCount: 0, // 過號計數器
       broadcastMsg: "現場廣播：請依現場三站叫號燈號依序前往。✨",
       lastUpdated: "--:--",
       registry: [],
       surveys: [],
-      overdueQueue: [] // 👈 新增：儲存過號人員 [{ ticket, name }]
+      overdueQueue: [] // 儲存過號重新排隊人員 [{ originalTicket, newOverdueTicket, name }]
     };
     
     // 1. 即時監聽雲端變更
@@ -153,16 +154,16 @@
           <p class="text-[10px] text-center text-slate-400 font-bold">最後同步：<span id="lastUpdatedDisplay">--:--</span></p>
         </div>
 
-        <!-- 🆕 即時看診順序預告（顯示接下來至少 3 位號碼） -->
+        <!-- 即時看診動態佇列預告（包含過號重新編號） -->
         <div class="hand-card bg-white p-4 space-y-2.5">
           <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
             <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
-              <span>👀</span> 預估看診順序（即時顯示下 3 位）
+              <span>👀</span> 各診間預估看診順序（自動融入過號）
             </h3>
-            <span class="text-[10px] text-slate-400 font-bold">過號自動插隊中</span>
+            <span class="text-[10px] text-slate-400 font-bold">即時顯示下 3 位</span>
           </div>
           <div class="space-y-2" id="upcomingQueuePreview">
-            <!-- JavaScript 動態渲染 -->
+            <!-- JavaScript 動態計算並渲染 -->
           </div>
         </div>
 
@@ -195,11 +196,11 @@
           </div>
         </div>
 
-        <!-- 號碼對照 -->
+        <!-- 號碼對照與進度查詢 -->
         <div class="hand-card bg-dusty-yellow/60 p-4 space-y-2">
-          <h3 class="text-xs font-bold text-dusty-dark">🎫 查詢我的號碼進度（含過號插隊規則說明）</h3>
+          <h3 class="text-xs font-bold text-dusty-dark">🎫 查詢號碼進度（含過號重編說明）</h3>
           <div class="flex gap-2">
-            <input type="number" id="myNumberInput" placeholder="輸入號碼 (例如 20)" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold text-center">
+            <input type="text" id="myNumberInput" placeholder="輸入號碼 (例如 020 或 過-001)" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold text-center">
             <button onclick="checkQueueStatus()" class="hand-btn bg-dusty-yellow text-dusty-dark font-bold px-4 py-1.5 text-xs shrink-0">🔍 對照</button>
           </div>
           <div id="queueResult" class="hidden p-2.5 rounded-xl text-xs font-bold text-center border-2 border-dusty-dark space-y-1"></div>
@@ -416,7 +417,7 @@
             <span>1. 掛號櫃台：</span>
             <div class="flex items-center gap-1">
               <button onclick="adjustStation('station1', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
-              <input type="number" id="adminCall1" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
+              <input type="text" id="adminCall1" class="w-16 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="000">
               <button onclick="adjustStation('station1', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
             </div>
           </div>
@@ -424,7 +425,7 @@
             <span>2. 醫師問診：</span>
             <div class="flex items-center gap-1">
               <button onclick="adjustStation('station2', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
-              <input type="number" id="adminCall2" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
+              <input type="text" id="adminCall2" class="w-16 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="000">
               <button onclick="adjustStation('station2', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
             </div>
           </div>
@@ -432,21 +433,21 @@
             <span>3. 接種注射：</span>
             <div class="flex items-center gap-1">
               <button onclick="adjustStation('station3', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
-              <input type="number" id="adminCall3" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
+              <input type="text" id="adminCall3" class="w-16 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="000">
               <button onclick="adjustStation('station3', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
             </div>
           </div>
           <button onclick="saveAllStations()" class="hand-btn w-full bg-dusty-mintText text-white py-2 mt-1">📡 廣播同步三站號碼</button>
         </div>
 
-        <!-- 🆕 醫護專用：過號佇列管理與直接叫號區 -->
+        <!-- 醫護專用：過號重編佇列管理區 -->
         <div class="bg-amber-50 p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
           <div class="flex justify-between items-center border-b border-amber-200 pb-1">
-            <span class="text-amber-900">⚠️ 現場過號管理佇列</span>
-            <span class="text-[10px] text-amber-700">點擊按鈕直接叫號</span>
+            <span class="text-amber-900">⚠️ 已重新排隊過號清單</span>
+            <span class="text-[10px] text-amber-700">自動交錯插隊看診</span>
           </div>
           <div class="space-y-1.5 max-h-36 overflow-y-auto" id="adminOverdueList">
-            <p class="text-gray-400 text-center text-[10px]">目前無等待中的過號人員</p>
+            <p class="text-gray-400 text-center text-[10px]">目前無重新排隊的過號人員</p>
           </div>
         </div>
 
@@ -457,7 +458,7 @@
           <button onclick="sendBroadcast()" class="hand-btn w-full bg-dusty-yellow text-dusty-yellowText py-1.5">發布廣播至全場手機</button>
         </div>
 
-        <!-- 雲端報到名冊（含過號按鈕） -->
+        <!-- 雲端報到名冊（含點擊標記過號按鈕） -->
         <div class="space-y-1">
           <div class="flex justify-between items-center">
             <span class="text-xs font-bold">雲端報到名冊 (總計 <span id="totalCheckinCount">0</span> 人)</span>
@@ -500,18 +501,18 @@
 
     // 核心 UI 更新函數
     window.updateUI = function() {
-      document.getElementById('callStation1').innerText = String(window.state.station1 || 0).padStart(3, '0');
-      document.getElementById('callStation2').innerText = String(window.state.station2 || 0).padStart(3, '0');
-      document.getElementById('callStation3').innerText = String(window.state.station3 || 0).padStart(3, '0');
+      document.getElementById('callStation1').innerText = typeof window.state.station1 === 'number' ? String(window.state.station1).padStart(3, '0') : window.state.station1;
+      document.getElementById('callStation2').innerText = typeof window.state.station2 === 'number' ? String(window.state.station2).padStart(3, '0') : window.state.station2;
+      document.getElementById('callStation3').innerText = typeof window.state.station3 === 'number' ? String(window.state.station3).padStart(3, '0') : window.state.station3;
       document.getElementById('lastUpdatedDisplay').innerText = window.state.lastUpdated || '--:--';
       document.getElementById('broadcastText').innerText = window.state.broadcastMsg || '';
       
       const regCount = (window.state.registry || []).length;
       document.getElementById('publicCheckinCount').innerText = regCount;
       if (document.getElementById('adminCall1')) {
-        document.getElementById('adminCall1').value = window.state.station1 || 0;
-        document.getElementById('adminCall2').value = window.state.station2 || 0;
-        document.getElementById('adminCall3').value = window.state.station3 || 0;
+        document.getElementById('adminCall1').value = window.state.station1 || '000';
+        document.getElementById('adminCall2').value = window.state.station2 || '000';
+        document.getElementById('adminCall3').value = window.state.station3 || '000';
       }
       if (document.getElementById('adminBroadcastInput')) {
         document.getElementById('adminBroadcastInput').value = window.state.broadcastMsg || '';
@@ -535,13 +536,13 @@
       const inputEl = document.getElementById(stationKey === 'station1' ? 'adminCall1' : stationKey === 'station2' ? 'adminCall2' : 'adminCall3');
       let val = parseInt(inputEl.value) || 0;
       val = Math.max(0, val + delta);
-      inputEl.value = val;
+      inputEl.value = String(val).padStart(3, '0');
     }
 
     function saveAllStations() {
-      window.state.station1 = parseInt(document.getElementById('adminCall1').value) || 0;
-      window.state.station2 = parseInt(document.getElementById('adminCall2').value) || 0;
-      window.state.station3 = parseInt(document.getElementById('adminCall3').value) || 0;
+      window.state.station1 = document.getElementById('adminCall1').value;
+      window.state.station2 = document.getElementById('adminCall2').value;
+      window.state.station3 = document.getElementById('adminCall3').value;
       window.syncState();
       alert("三站號碼已同步至全場！");
     }
@@ -554,93 +555,119 @@
       alert("📢 現場廣播已秒速推播至全場手機！");
     }
 
-    // 🆕 1. 醫護手動將號碼標記為過號
-    function markAsOverdue(ticket, name) {
+    // 核心邏輯 1：醫護將過號人員「發記重新排隊號碼」
+    function markAsOverdue(originalTicket, name) {
       if (!window.state.overdueQueue) window.state.overdueQueue = [];
-      if (window.state.overdueQueue.some(item => item.ticket === ticket)) {
-        alert(`號碼 ${ticket} 已在過號佇列中！`);
+      if (window.state.overdueQueue.some(item => item.originalTicket === originalTicket)) {
+        alert(`原號碼 ${originalTicket} 已經在過號重編佇列中了！`);
         return;
       }
-      window.state.overdueQueue.push({ ticket, name });
+      if (!window.state.overdueTicketCount) window.state.overdueTicketCount = 0;
+      window.state.overdueTicketCount++;
+      
+      // 自動賦予全新的過號重新排隊編號（例如：過-001）
+      const newOverdueTicket = `過-${String(window.state.overdueTicketCount).padStart(3, '0')}`;
+      
+      window.state.overdueQueue.push({
+        originalTicket,
+        newOverdueTicket,
+        name
+      });
       window.syncState();
-      alert(`已成功將 ${ticket} 號 (${name}) 加入過號清單！`);
+      alert(`原號碼 ${originalTicket} (${name}) 已過號，賦予全新看診號碼：【${newOverdueTicket}】並排入叫號佇列！`);
     }
 
-    // 🆕 2. 醫護點擊過號清單，直接呼叫過號人員
+    // 核心邏輯 2：後台手動叫號過號人員
     function callOverdueTicket(index) {
       const overdueItem = window.state.overdueQueue.splice(index, 1)[0];
       if (overdueItem) {
-        window.state.station1 = parseInt(overdueItem.ticket);
-        window.state.broadcastMsg = `📢 請過號的 ${overdueItem.ticket} 號 (${overdueItem.name}) 立即至 1號櫃台看診！`;
+        window.state.station1 = overdueItem.newOverdueTicket;
+        window.state.broadcastMsg = `📢 請過號重編【${overdueItem.newOverdueTicket}】號 (${overdueItem.name}) 至 1 號掛號櫃台看診！`;
         window.syncState();
       }
     }
 
-    // 🆕 3. 渲染後台過號管理區塊
+    // 核心邏輯 3：計算「正常號碼與過號號碼」融合後的叫號順序陣列
+    function getCombinedQueue() {
+      let currentNormal = typeof window.state.station1 === 'number' ? window.state.station1 : parseInt(window.state.station1) || 0;
+      const overdueQueueCopy = [...(window.state.overdueQueue || [])];
+      let combined = [];
+
+      let normalCounter = currentNormal + 1;
+      let overduePointer = 0;
+
+      // 自動產生未來 5 個預估順位（預設：每 2 個正常號安插 1 個過號號碼）
+      for (let step = 1; step <= 5; step++) {
+        if (step % 2 === 0 && overduePointer < overdueQueueCopy.length) {
+          // 安插過號號碼
+          const ov = overdueQueueCopy[overduePointer];
+          combined.push({
+            ticketDisplay: ov.newOverdueTicket,
+            originalTicket: ov.originalTicket,
+            name: ov.name,
+            isOverdue: true
+          });
+          overduePointer++;
+        } else {
+          // 安插正常號碼
+          combined.push({
+            ticketDisplay: String(normalCounter).padStart(3, '0'),
+            name: '',
+            isOverdue: false
+          });
+          normalCounter++;
+        }
+      }
+      return combined;
+    }
+
+    // 渲染前台 3 位預估看診順序
+    function renderUpcomingQueue() {
+      const container = document.getElementById('upcomingQueuePreview');
+      const upcoming = getCombinedQueue().slice(0, 3); // 取前 3 名
+      
+      let html = '';
+      upcoming.forEach((item, index) => {
+        html += `
+          <div class="flex justify-between items-center bg-dusty-cream/40 p-2.5 rounded-xl border-2 border-dusty-dark">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full ${item.isOverdue ? 'bg-amber-500' : 'bg-dusty-pink'} text-white font-black text-[10px] flex items-center justify-center border border-dusty-dark">
+                ${index + 1}
+              </span>
+              <span class="text-xs font-bold">順位 ${index + 1}：</span>
+              <span class="text-base font-black ${item.isOverdue ? 'text-amber-800' : 'text-dusty-dark'}">${item.ticketDisplay}</span>
+              ${item.name ? `<span class="text-[10px] text-slate-500 font-bold">(${item.name})</span>` : ''}
+            </div>
+            ${item.isOverdue ? 
+              `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse">⚠️ 過號插隊 (原:${item.originalTicket})</span>` : 
+              `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-black">🟢 正常號</span>`
+            }
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // 渲染後台過號管理佇列
     function renderAdminOverdue() {
       const container = document.getElementById('adminOverdueList');
       const queue = window.state.overdueQueue || [];
       if (queue.length === 0) {
-        container.innerHTML = `<p class="text-gray-400 text-center text-[10px]">目前無等待中的過號人員</p>`;
+        container.innerHTML = `<p class="text-gray-400 text-center text-[10px]">目前無重新排隊的過號人員</p>`;
         return;
       }
       container.innerHTML = queue.map((item, idx) => `
         <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-dusty-dark shadow-sm">
           <div>
-            <span class="text-rose-600 font-black">【過號】</span>
-            <span class="font-bold">${item.ticket} 號 - ${item.name}</span>
+            <span class="text-amber-800 font-black">【${item.newOverdueTicket}】</span>
+            <span class="font-bold">${item.name}</span>
+            <span class="text-gray-400 text-[9px]">(原:${item.originalTicket})</span>
           </div>
           <button onclick="callOverdueTicket(${idx})" class="hand-btn bg-amber-400 text-dusty-dark px-2 py-1 text-[10px] font-black">
-            點擊叫號(看診)
+            直接叫號
           </button>
         </div>
       `).join('');
-    }
-
-    // 🆕 4. 渲染前端 3 位看診順序預告（結合過號與正常號）
-    function renderUpcomingQueue() {
-      const container = document.getElementById('upcomingQueuePreview');
-      const currentCall = window.state.station1 || 0;
-      const overdue = window.state.overdueQueue || [];
-      
-      let html = '';
-      let nextNormal = currentCall + 1;
-      let overdueIdx = 0;
-
-      for (let i = 1; i <= 3; i++) {
-        let ticketStr = "";
-        let isOverdueTag = false;
-        let personName = "";
-
-        // 規則：第 2 位優先顯示現場報到的過號人員
-        if (i === 2 && overdueIdx < overdue.length) {
-          ticketStr = overdue[overdueIdx].ticket;
-          personName = overdue[overdueIdx].name;
-          isOverdueTag = true;
-          overdueIdx++;
-        } else {
-          ticketStr = String(nextNormal).padStart(3, '0');
-          nextNormal++;
-        }
-
-        html += `
-          <div class="flex justify-between items-center bg-dusty-cream/40 p-2.5 rounded-xl border-2 border-dusty-dark">
-            <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full ${isOverdueTag ? 'bg-amber-400' : 'bg-dusty-pink'} text-white font-black text-[10px] flex items-center justify-center border border-dusty-dark">
-                ${i}
-              </span>
-              <span class="text-xs font-bold">順位 ${i}：</span>
-              <span class="text-base font-black ${isOverdueTag ? 'text-amber-800' : 'text-dusty-dark'}">${ticketStr} 號</span>
-              ${personName ? `<span class="text-[10px] text-slate-500 font-bold">(${personName})</span>` : ''}
-            </div>
-            ${isOverdueTag ? 
-              `<span class="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] px-2 py-0.5 rounded-full font-black animate-pulse">⚠️ 過號插隊順位</span>` : 
-              `<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-black">🟢 正常號碼</span>`
-            }
-          </div>
-        `;
-      }
-      container.innerHTML = html;
     }
 
     function submitCloudCheckin() {
@@ -742,7 +769,6 @@
       setTimeout(() => { document.getElementById('surveySuccessMsg').classList.add('hidden'); }, 4000);
     }
 
-    // 🆕 渲染名冊時增加「標記過號」按鈕
     function renderRegistry() {
       const tbody = document.getElementById('registryList');
       const reg = window.state.registry || [];
@@ -755,8 +781,8 @@
           <td>${r.name}</td>
           <td>${r.temp}°C</td>
           <td class="text-right">
-            <button onclick="markAsOverdue('${r.ticket}', '${r.name}')" class="bg-rose-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">
-              +過號
+            <button onclick="markAsOverdue('${r.ticket}', '${r.name}')" class="bg-rose-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold active:scale-95">
+              +過號重編
             </button>
           </td>
         </tr>
@@ -811,38 +837,56 @@
     }
 
     function checkQueueStatus() {
-      const myNum = parseInt(document.getElementById('myNumberInput').value);
+      const inputVal = document.getElementById('myNumberInput').value.trim();
       const res = document.getElementById('queueResult');
-      if (!myNum || isNaN(myNum)) { alert("請輸入有效的號碼！"); return; }
+      if (!inputVal) { alert("請輸入有效的號碼！"); return; }
       res.classList.remove('hidden');
       
-      const currentCall = window.state.station1;
+      const currentCall = typeof window.state.station1 === 'number' ? String(window.state.station1).padStart(3,'0') : window.state.station1;
       
-      if (myNum <= currentCall) {
-        const overdueArrangeNum = currentCall + 2;
-        res.className = "p-3 rounded-xl text-xs font-bold text-left bg-amber-50 text-dusty-dark border-2 border-dusty-dark block space-y-1";
-        res.innerHTML = `
-          <div class="flex items-center gap-1 text-rose-600 font-extrabold text-xs">
-            <span>⚠️</span> 您的號碼 (${String(myNum).padStart(3,'0')}) 已過號！請告知報到櫃台工作人員
-          </div>
-          <div class="bg-white p-2 rounded-lg border border-dusty-dark text-[11px] leading-relaxed">
-            📌 <b>過號叫號規則說明：</b><br>
-            到達現場報到後需<b>再等候 2 號</b>。護理師每看 2位正常號會插入 1 位過號。以此類推…第2個過號便安插在第4個正常號後。<br>
-            例如：目前看診 <b>${String(currentCall).padStart(3,'0')} 號</b> ➔ 預估安排您於 <b>${String(overdueArrangeNum).padStart(3,'0')} 號</b> 後插入進去看診。
-          </div>
-        `;
+      // 判斷是否為過號重編號碼 (如：過-001)
+      if (inputVal.startsWith("過-")) {
+        const foundIndex = (window.state.overdueQueue || []).findIndex(item => item.newOverdueTicket === inputVal);
+        if (foundIndex !== -1) {
+          const arrangeRank = (foundIndex + 1) * 2; // 每看2個正常號插入1個過號
+          res.className = "p-3 rounded-xl text-xs font-bold text-left bg-amber-50 text-dusty-dark border-2 border-dusty-dark block space-y-1";
+          res.innerHTML = `
+            <div class="font-extrabold text-amber-800">⚠️ 您的過號重新排隊號碼：${inputVal}</div>
+            <div class="bg-white p-2 rounded-lg border border-dusty-dark text-[11px] leading-relaxed">
+              目前第 1 站叫號為：<b>${currentCall}</b><br>
+              預估約在 <b>第 ${arrangeRank} 位</b> 順位插隊看診，請於現場等候叫號！
+            </div>
+          `;
+        } else {
+          res.className = "p-3 rounded-xl text-xs font-bold text-left bg-emerald-50 text-emerald-800 border-2 border-dusty-dark block space-y-1";
+          res.innerHTML = `✅ 號碼 ${inputVal} 已完成看診或不在等待佇列中。`;
+        }
       } else {
-        const diff = myNum - currentCall;
-        const estimatedCallNum = myNum + Math.floor(diff / 2);
-        res.className = "p-3 rounded-xl text-xs font-bold text-left bg-white text-slate-700 border-2 border-dusty-dark block space-y-1";
-        res.innerHTML = `
-          <div class="font-extrabold text-emerald-700">✅ 您的號碼 (${String(myNum).padStart(3,'0')}) 尚未叫到</div>
-          <div class="text-[11px] leading-relaxed">
-            目前第 1 站叫到：<b>${String(currentCall).padStart(3,'0')} 號</b><br>
-            尚需等待約 <b>${diff} 位</b> 正常號碼。<br>
-            <span class="text-slate-500">（考量現場過號插隊規則，預估約在 ${String(estimatedCallNum).padStart(3,'0')} 號前完成）</span>
-          </div>
-        `;
+        // 正常號碼查詢邏輯
+        const myNum = parseInt(inputVal);
+        const currentCallNum = parseInt(currentCall) || 0;
+        
+        if (myNum <= currentCallNum) {
+          res.className = "p-3 rounded-xl text-xs font-bold text-left bg-amber-50 text-dusty-dark border-2 border-dusty-dark block space-y-1";
+          res.innerHTML = `
+            <div class="flex items-center gap-1 text-rose-600 font-extrabold text-xs">
+              <span>⚠️</span> 您的號碼 (${String(myNum).padStart(3,'0')}) 已過號！
+            </div>
+            <div class="bg-white p-2 rounded-lg border border-dusty-dark text-[11px] leading-relaxed">
+              請立即前往報到櫃台，由護理師為您<b>【發記過號重新排隊號碼】</b>，系統將會自動將您安排至接下來的動態看診順序中。
+            </div>
+          `;
+        } else {
+          const diff = myNum - currentCallNum;
+          res.className = "p-3 rounded-xl text-xs font-bold text-left bg-white text-slate-700 border-2 border-dusty-dark block space-y-1";
+          res.innerHTML = `
+            <div class="font-extrabold text-emerald-700">✅ 您的號碼 (${String(myNum).padStart(3,'0')}) 尚未叫到</div>
+            <div class="text-[11px] leading-relaxed">
+              目前第 1 站叫到：<b>${currentCall} 號</b><br>
+              前面尚有約 <b>${diff} 位</b> 正常號碼，請耐心等候。
+            </div>
+          `;
+        }
       }
     }
 
