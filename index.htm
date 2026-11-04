@@ -5,23 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>環安室疫苗接種小助手 🧸 2026 長庚大學流感·新冠</title>
   
-  <!-- Tailwind CSS & Font Awesome -->
+  <!-- Tailwind CSS & Font Awesome & Confetti -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <!-- Firebase 9.x SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     
+    // ✅ Firebase 資料庫設定
     const firebaseConfig = {
       databaseURL: "https://flu-vaccine-2026-default-rtdb.firebaseio.com"
     };
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const stateRef = ref(db, 'vaccine_state');
-    
-    // 全域狀態（含叫號、雲端報到名冊、過號清單、廣播）
+
+    // 全域狀態
     window.state = {
       station1: "000",
       station2: "000",
@@ -52,6 +54,7 @@
       set(stateRef, window.state);
     };
   </script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -69,6 +72,7 @@
       }
     }
   </script>
+
   <style>
     body {
       background-color: #E69D9D;
@@ -92,6 +96,7 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
+    /* 鍵盤彈起時，底部導覽列滑出畫面下方，並增加外層容器底部間距 */
     body.keyboard-open #bottom-nav {
       transform: translateY(120%) !important;
       pointer-events: none;
@@ -139,15 +144,15 @@
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="bg-dusty-cream p-2.5 rounded-2xl border-2 border-dusty-dark">
               <p class="text-[11px] font-bold text-slate-600">1. 掛號櫃台</p>
-              <div class="text-xl font-black text-dusty-dark my-1" id="callStation1">000</div>
+              <div class="text-xl font-black text-dusty-dark my-1 truncate" id="callStation1">000</div>
             </div>
             <div class="bg-dusty-yellow/60 p-2.5 rounded-2xl border-2 border-dusty-dark">
               <p class="text-[11px] font-bold text-dusty-yellowText">2. 醫師問診</p>
-              <div class="text-xl font-black text-dusty-dark my-1" id="callStation2">000</div>
+              <div class="text-xl font-black text-dusty-dark my-1 truncate" id="callStation2">000</div>
             </div>
             <div class="bg-dusty-mint p-2.5 rounded-2xl border-2 border-dusty-dark">
               <p class="text-[11px] font-bold text-dusty-mintText">3. 注射診間</p>
-              <div class="text-xl font-black text-dusty-dark my-1" id="callStation3">000</div>
+              <div class="text-xl font-black text-dusty-dark my-1 truncate" id="callStation3">000</div>
             </div>
           </div>
           <p class="text-[10px] text-center text-slate-400 font-bold">最後同步：<span id="lastUpdatedDisplay">--:--</span></p>
@@ -228,6 +233,7 @@
           <div id="quizFeedbackBox" class="hidden p-3 rounded-2xl text-xs font-bold border-2 border-dusty-dark"></div>
           <button id="nextQuizBtn" onclick="nextQuizQuestion()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs hidden">下一題 ✨</button>
         </div>
+
         <div id="heroBadgeCard" class="hidden hand-card bg-white p-6 text-center space-y-4 border-2 border-dusty-dark">
           <div class="inline-block bg-dusty-pink text-white text-xs font-black px-4 py-1.5 rounded-full border border-dusty-dark">
             🏆 今日抗體勇者認證
@@ -246,7 +252,7 @@
         </div>
       </section>
 
-      <!-- TAB 4: 滿意度問卷 -->
+      <!-- TAB 4: 完整 5 星滿意度雲端問卷 -->
       <section id="tab-survey" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-dusty-cream p-5 space-y-4">
           <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
@@ -254,6 +260,7 @@
           </h2>
           <p class="text-[11px] text-slate-600 font-bold">感謝您參與本次接種活動，請點選星星為各項服務評分：</p>
           <form id="surveyForm" onsubmit="submitCloudSurvey(event)" class="space-y-3 text-xs font-bold">
+            <!-- Q1 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">1. 接種流程動線與現場等待時間</p>
               <div class="flex items-center justify-between">
@@ -268,6 +275,72 @@
               </div>
               <input type="hidden" id="val-q1" value="5">
             </div>
+            <!-- Q2 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">2. 場地環境舒適度與指標清晰度</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q2">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q2-label">5分 (非常滿意)</span>
+              </div>
+              <input type="hidden" id="val-q2" value="5">
+            </div>
+            <!-- Q3 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">3. 現場醫護與工作人員服務態度</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q3">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q3-label">5分 (非常滿意)</span>
+              </div>
+              <input type="hidden" id="val-q3" value="5">
+            </div>
+            <!-- Q4 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">4. 接種前衛教與注意事項說明清晰度</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q4">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q4-label">5分 (非常清晰)</span>
+              </div>
+              <input type="hidden" id="val-q4" value="5">
+            </div>
+            <!-- Q5 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">5. 本次流感疫苗接種活動綜合評價</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q5">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q5-label">5分 (非常滿意)</span>
+              </div>
+              <input type="hidden" id="val-q5" value="5">
+            </div>
+            <!-- Q6 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">6. 您對於未來辦理疫苗接種活動的寶貴建議或心得（選填）：</p>
+              <textarea id="q6Comment" rows="2" placeholder="寫下您的改善建議或想說的話..." class="hand-input w-full p-2 text-xs font-normal"></textarea>
+            </div>
+            
             <button type="submit" class="hand-btn w-full bg-dusty-mint text-dusty-mintText font-bold py-2.5 text-xs">
               ☁️ 提交問卷至雲端
             </button>
@@ -279,18 +352,38 @@
       </section>
     </main>
 
-    <!-- 底部導覽列 -->
+    <!-- 底部導覽列（含原始可愛動物 SVG 圖示） -->
     <nav id="bottom-nav" class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-35 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1 transition-all duration-300">
       <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
+          <path d="M15 25 C10 10 18 5 20 20 C22 5 30 10 25 25" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="20" cy="35" rx="12" ry="14" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="16" cy="32" r="1.5" fill="#3D3435"/><circle cx="24" cy="32" r="1.5" fill="#3D3435"/>
+        </svg>
         <span class="text-[9px]">叫號報到</span>
       </button>
       <button onclick="switchTab('info')" id="nav-info" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 60 70">
+          <circle cx="16" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="44" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="30" cy="33" rx="16" ry="15" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+        </svg>
         <span class="text-[9px]">接種須知</span>
       </button>
       <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
+          <polygon points="12,24 20,10 24,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <polygon points="38,24 30,10 26,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="25" cy="34" rx="14" ry="13" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+        </svg>
         <span class="text-[9px]">衛教問答</span>
       </button>
       <button onclick="switchTab('survey')" id="nav-survey" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
+          <ellipse cx="12" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
+          <ellipse cx="38" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
+          <ellipse cx="25" cy="33" rx="13" ry="12" fill="#E8B4B4" stroke="#3D3435" stroke-width="2.5"/>
+        </svg>
         <span class="text-[9px]">回饋問卷</span>
       </button>
     </nav>
@@ -304,12 +397,12 @@
         <button onclick="toggleRoleModal()" class="text-slate-400 font-bold">✕</button>
       </div>
       <div id="authBox" class="space-y-2">
-        <input type="password" id="pinInput" placeholder="請輸入 PIN 碼 " class="w-full border-2 border-dusty-dark rounded-xl px-3 py-2 text-center text-xs font-bold">
+        <input type="password" id="pinInput" placeholder="請輸入 PIN 碼" class="w-full border-2 border-dusty-dark rounded-xl px-3 py-2 text-center text-xs font-bold">
         <button onclick="verifyPin()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs">進入後台</button>
       </div>
       <div id="controlBox" class="space-y-4 hidden">
         
-        <!-- 三站叫號控制（改為 type="text" 支援國字、保留 +- 按鈕與順序防呆機制） -->
+        <!-- 三站叫號控制（支援國字/數字，保留 +- 按鈕，附關卡順序防呆） -->
         <div class="bg-dusty-mint p-3 rounded-xl border-2 border-dusty-dark space-y-2.5 text-xs font-bold">
           <p class="text-dusty-mintText border-b border-dusty-mintText/20 pb-1">🎛️ 三站叫號燈號調整 (支援國字/數字)</p>
           
@@ -343,7 +436,7 @@
           <button onclick="saveAllStations()" class="hand-btn w-full bg-dusty-mintText text-white py-2 mt-1">📡 廣播同步三站號碼</button>
         </div>
 
-        <!-- 🛑 後台新增：報到櫃台填寫 "過號號碼" 專區 -->
+        <!-- 🛑 後台：報到櫃台填寫 "過號號碼" 專區 -->
         <div class="bg-amber-50 p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
           <label class="block text-amber-900">🛑 報到櫃台 - 登記過號號碼：</label>
           <div class="flex gap-2">
@@ -370,11 +463,23 @@
             <table class="w-full text-left"><tbody id="registryList"><tr><td class="text-gray-400">尚無資料</td></tr></tbody></table>
           </div>
         </div>
+
+        <!-- 雲端問卷回饋 -->
+        <div class="space-y-1 pt-2 border-t border-slate-200">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold">雲端問卷回饋 (<span id="totalSurveyCount">0</span> 份)</span>
+            <button onclick="exportCSV('survey')" class="text-[10px] bg-dusty-yellow text-dusty-dark px-2 py-0.5 rounded font-bold border border-dusty-dark">下載問卷 CSV</button>
+          </div>
+          <div class="bg-slate-50 border-2 border-dusty-dark rounded-xl p-2 max-h-28 overflow-y-auto text-[10px] space-y-1" id="surveyRecordList">
+            <p class="text-gray-400 text-center">尚無問卷資料</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
+    // 自動監聽輸入框 focus/blur 事件，避開鍵盤遮擋
     document.addEventListener('DOMContentLoaded', () => {
       const inputs = document.querySelectorAll('input, textarea');
       inputs.forEach(input => {
@@ -425,7 +530,7 @@
       } else { alert("PIN 碼錯誤！"); }
     }
 
-    // 🛡️ 防呆機制：調整號碼時確保第3站不能超過第2站，第2站不能超過第1站
+    // 🛡️ 叫號順序防呆判斷（第3站 <= 第2站 <= 第1站）
     function adjustStation(stationKey, delta) {
       const input1 = document.getElementById('adminCall1');
       const input2 = document.getElementById('adminCall2');
@@ -452,10 +557,10 @@
         return;
       }
 
-      targetInput.value = val;
+      targetInput.value = String(val).padStart(3, '0');
     }
 
-    // 🛡️ 防呆機制：儲存同步時驗證三關大小關係
+    // 🛡️ 防呆機制：發布同步前驗證
     function saveAllStations() {
       const val1 = document.getElementById('adminCall1').value.trim();
       const val2 = document.getElementById('adminCall2').value.trim();
@@ -483,7 +588,7 @@
       alert("三站號碼已同步至全場！");
     }
 
-    // 🛑 登記過號號碼處理函數
+    // 🛑 登記過號號碼
     function registerOverdueNumber() {
       const val = document.getElementById('adminOverdueInput').value.trim();
       if (!val) { alert("請輸入過號號碼！"); return; }
@@ -525,6 +630,7 @@
       if (typeof confetti === 'function') confetti({ particleCount: 50 });
     }
 
+    // 衛教問答邏輯
     const quizList = [
       { q: "1. 打完流感疫苗就不會得到普通感冒了嗎？", opts: [{ t: "⭕ 對，完全免疫", c: false }, { t: "❌ 錯，流感與一般感冒不同", c: true }], exp: "流感疫苗主要預防重症流感，對一般感冒病毒無效喔。" },
       { q: "2. 打完針之後，注射部位需要大力揉搓嗎？", opts: [{ t: "⭕ 需要用力揉促進吸收", c: false }, { t: "❌ 切勿用力揉，輕壓即可", c: true }], exp: "打完針後只需輕壓即可，用力揉容易造成區域皮下微血管破裂。" },
@@ -572,6 +678,7 @@
       }
     }
 
+    // 星星互動（5 題滿意度評分）
     const starLabels = { 1: "1分 (需改善)", 2: "2分 (尚可)", 3: "3分 (普通)", 4: "4分 (滿意)", 5: "5分 (非常滿意)" };
     function setStar(qName, score) {
       document.getElementById(`val-${qName}`).value = score;
@@ -661,21 +768,54 @@
       if (key === 'survey') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-cream border-2 border-dusty-dark text-dusty-dark font-bold shadow-[2px_2px_0px_#3D3435]";
     }
 
+    // 保留原本的過號進度推估與說明對照 logic
     function checkQueueStatus() {
-      const myNum = document.getElementById('myNumberInput').value.trim();
+      const inputVal = document.getElementById('myNumberInput').value.trim();
       const res = document.getElementById('queueResult');
-      if (!myNum) { alert("請輸入有效的號碼！"); return; }
+      if (!inputVal) { alert("請輸入有效的號碼！"); return; }
       res.classList.remove('hidden');
       
-      const currentCall = window.state.station1;
-      res.className = "p-3 rounded-xl text-xs font-bold text-left bg-white text-slate-700 border-2 border-dusty-dark block space-y-1";
-      res.innerHTML = `
-        <div class="font-extrabold text-emerald-700">✅ 您的號碼 (${myNum}) 查詢完成</div>
-        <div class="text-[11px] leading-relaxed">
-          目前第 1 站掛號櫃台叫到：<b>${currentCall}</b><br>
-          請隨時留意現場叫號燈號與廣播通知。
-        </div>
-      `;
+      const myNum = parseInt(inputVal);
+      const currentCall = parseInt(window.state.station1) || 0;
+      
+      if (!isNaN(myNum) && myNum <= currentCall) {
+        // 🚨 過號狀況說明
+        const overdueArrangeNum = currentCall + 2;
+        res.className = "p-3 rounded-xl text-xs font-bold text-left bg-amber-50 text-dusty-dark border-2 border-dusty-dark block space-y-1";
+        res.innerHTML = `
+          <div class="flex items-center gap-1 text-rose-600 font-extrabold text-xs">
+            <span>⚠️</span> 您的號碼 (${String(myNum).padStart(3,'0')}) 已過號！請告知報到櫃台工作人員
+          </div>
+          <div class="bg-white p-2 rounded-lg border border-dusty-dark text-[11px] leading-relaxed">
+            📌 <b>過號叫號規則說明：</b><br>
+            到達現場報到後需<b>再等候 2 號</b>。護理師每看 2 位正常號會插入 1 位過號。以此類推…第2個過號便安插在第4個正常號後。<br>
+            例如：目前看診 <b>${String(currentCall).padStart(3,'0')} 號</b> ➔ 預估安排您於 <b>${String(overdueArrangeNum).padStart(3,'0')} 號</b> 後插入進去看診。
+          </div>
+        `;
+      } else if (!isNaN(myNum)) {
+        // 🟢 未過號狀況
+        const diff = myNum - currentCall;
+        const estimatedCallNum = myNum + Math.floor(diff / 2);
+        res.className = "p-3 rounded-xl text-xs font-bold text-left bg-white text-slate-700 border-2 border-dusty-dark block space-y-1";
+        res.innerHTML = `
+          <div class="font-extrabold text-emerald-700">✅ 您的號碼 (${String(myNum).padStart(3,'0')}) 尚未叫號</div>
+          <div class="text-[11px] leading-relaxed">
+            目前第 1 站叫到：<b>${String(currentCall).padStart(3,'0')} 號</b><br>
+            尚需等待約 <b>${diff} 位</b> 正常號碼。<br>
+            <span class="text-slate-500">（考量現場過號插隊規則，預估約在 ${String(estimatedCallNum).padStart(3,'0')} 號前完成）</span>
+          </div>
+        `;
+      } else {
+        // 自訂國字/文字查詢
+        res.className = "p-3 rounded-xl text-xs font-bold text-left bg-white text-slate-700 border-2 border-dusty-dark block space-y-1";
+        res.innerHTML = `
+          <div class="font-extrabold text-emerald-700">✅ 您的號碼 (${inputVal}) 查詢完成</div>
+          <div class="text-[11px] leading-relaxed">
+            目前第 1 站叫號為：<b>${window.state.station1}</b><br>
+            請隨時關注現場叫號與即時廣播。
+          </div>
+        `;
+      }
     }
 
     window.onload = function() {
