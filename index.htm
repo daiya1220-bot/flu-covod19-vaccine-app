@@ -130,7 +130,7 @@
           </div>
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="bg-dusty-cream p-2.5 rounded-2xl border-2 border-dusty-dark">
-              <p class="text-[11px] font-bold text-slate-600">1. 掛號窗口</p>
+              <p class="text-[11px] font-bold text-slate-600">1. 掛號櫃台</p>
               <div class="text-2xl font-black text-dusty-dark my-1" id="callStation1">000</div>
             </div>
             <div class="bg-dusty-yellow/60 p-2.5 rounded-2xl border-2 border-dusty-dark">
@@ -152,7 +152,7 @@
           <div class="space-y-2">
             <div>
               <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">姓名 / 綽號：</label>
-              <input type="text" id="checkinName" placeholder="例如：王大明" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
+              <input type="text" id="checkinName" placeholder="例如：王大明 或 Alex Wang" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">身分證號末 5 碼：</label>
@@ -194,7 +194,7 @@
               <p class="font-normal text-[11px] mt-0.5 opacity-90">接種當天請避免劇烈運動，並補充充足水分。</p>
             </div>
             <div class="bg-dusty-pink/40 p-3 rounded-2xl border border-dusty-dark text-dusty-dark">
-              <p>🧊 部位紅腫勿揉抓</p>
+              <p>💪 注射部位紅腫勿揉抓</p>
               <p class="font-normal text-[11px] mt-0.5 opacity-90">注射部位若有輕微紅腫，可適度冷敷，請勿用力捏揉。</p>
             </div>
             <div class="bg-dusty-yellow p-3 rounded-2xl border border-dusty-dark text-dusty-yellowText">
@@ -329,7 +329,7 @@
             </button>
           </form>
           <div id="surveySuccessMsg" class="hidden text-xs text-center font-bold text-emerald-800 p-2.5 bg-emerald-100 rounded-2xl border border-dusty-dark">
-            🎉 感謝您的寶貴意見！問卷已成功同步至雲端！
+            🎉 問卷完成！感謝您的寶貴意見！
           </div>
         </div>
       </section>
@@ -366,7 +366,7 @@
           <ellipse cx="38" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
           <ellipse cx="25" cy="33" rx="13" ry="12" fill="#E8B4B4" stroke="#3D3435" stroke-width="2.5"/>
         </svg>
-        <span class="text-[9px]">雲端問卷</span>
+        <span class="text-[9px]">回饋問卷</span>
       </button>
     </nav>
   </div>
@@ -378,8 +378,8 @@
         <button onclick="toggleRoleModal()" class="text-slate-400 font-bold">✕</button>
       </div>
       <div id="authBox" class="space-y-2">
-        <input type="password" id="pinInput" placeholder="請輸入 PIN 碼 (預設 8888)" class="w-full border-2 border-dusty-dark rounded-xl px-3 py-2 text-center text-xs font-bold">
-        <button onclick="verifyPin()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs">解鎖控制</button>
+        <input type="password" id="pinInput" placeholder="請輸入 PIN 碼 " class="w-full border-2 border-dusty-dark rounded-xl px-3 py-2 text-center text-xs font-bold">
+        <button onclick="verifyPin()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs">進入後台</button>
       </div>
       <div id="controlBox" class="space-y-4 hidden">
         
@@ -389,7 +389,7 @@
           
           <!-- 站 1 -->
           <div class="flex justify-between items-center">
-            <span>1. 掛號：</span>
+            <span>1. 掛號櫃台：</span>
             <div class="flex items-center gap-1">
               <button onclick="adjustStation('station1', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
               <input type="number" id="adminCall1" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
@@ -398,7 +398,7 @@
           </div>
           <!-- 站 2 -->
           <div class="flex justify-between items-center">
-            <span>2. 問診：</span>
+            <span>2. 醫師問診：</span>
             <div class="flex items-center gap-1">
               <button onclick="adjustStation('station2', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
               <input type="number" id="adminCall2" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
@@ -407,7 +407,7 @@
           </div>
           <!-- 站 3 -->
           <div class="flex justify-between items-center">
-            <span>3. 注射：</span>
+            <span>3. 接種注射：</span>
             <div class="flex items-center gap-1">
               <button onclick="adjustStation('station3', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
               <input type="number" id="adminCall3" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
@@ -565,7 +565,7 @@
       } else {
         btn.className = "hand-btn w-full text-left p-3 bg-rose-100 text-xs font-bold text-rose-900";
         fb.className = "p-3 rounded-2xl text-xs bg-rose-100 text-rose-900 font-bold block border-2 border-dusty-dark";
-        fb.innerText = `❌ 差一點點！${quizList[quizIdx].exp}`;
+        fb.innerText = `❌ 唉呀！差一點點！${quizList[quizIdx].exp}`;
       }
       document.getElementById('nextQuizBtn').classList.remove('hidden');
     }
@@ -666,7 +666,7 @@
       if (key === 'survey') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-cream border-2 border-dusty-dark text-dusty-dark font-bold shadow-[2px_2px_0px_#3D3435]";
     }
 
-    // 依據「過號則現場報到後再等 2 號，每看 1~2 位正常號，插入 1 位過號」規則計算預估進度
+    // 依據「過號則現場報到後再等 2 號，每看 2 位正常號，插入 1 位過號」規則計算預估進度
     function checkQueueStatus() {
       const myNum = parseInt(document.getElementById('myNumberInput').value);
       const res = document.getElementById('queueResult');
