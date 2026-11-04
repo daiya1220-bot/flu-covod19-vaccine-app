@@ -169,14 +169,14 @@
             </button>
           </div>
           <div id="myTicketBox" class="hidden p-3 bg-white border-2 border-dusty-dark rounded-2xl text-center space-y-1">
-            <span class="text-[10px] text-slate-500 font-bold">您的雲端專屬號碼牌</span>
+            <span class="text-[10px] text-slate-500 font-bold">您的號碼牌 ※請截圖此畫面</span>
             <div class="text-3xl font-black text-dusty-pink my-0.5" id="myTicketNum">---</div>
             <p class="text-xs text-emerald-800 font-bold" id="myTicketName"></p>
           </div>
         </div>
         <!-- 號碼對照 -->
         <div class="hand-card bg-dusty-yellow/60 p-4 space-y-2">
-          <h3 class="text-xs font-bold text-dusty-dark">🎫 對照我的號碼進度（過號插隊規則說明）</h3>
+          <h3 class="text-xs font-bold text-dusty-dark">🎫 查詢我的號碼進度（含過號插隊規則說明）</h3>
           <div class="flex gap-2">
             <input type="number" id="myNumberInput" placeholder="輸入號碼 (例如 20)" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold text-center">
             <button onclick="checkQueueStatus()" class="hand-btn bg-dusty-yellow text-dusty-dark font-bold px-4 py-1.5 text-xs shrink-0">🔍 對照</button>
@@ -512,7 +512,7 @@
       if (!msg) { alert("請輸入廣播內容！"); return; }
       window.state.broadcastMsg = msg;
       window.syncState();
-      alert("📢 現場廣播已秒速推播至全場 150 人手機！");
+      alert("📢 現場廣播已秒速推播至全場 200 人手機！");
     }
     // 民眾自主報到
     function submitCloudCheckin() {
@@ -688,7 +688,7 @@
           </div>
           <div class="bg-white p-2 rounded-lg border border-dusty-dark text-[11px] leading-relaxed">
             📌 <b>過號叫號規則說明：</b><br>
-            到達現場報到後需<b>再等候 2 號</b>。護理師每看 2位正常號會插入 1 位過號。<br>
+            到達現場報到後需<b>再等候 2 號</b>。護理師每看 2位正常號會插入 1 位過號。以此類推…第2個過號便安插在第4個正常號後。<br>
             目前看診：<b>${String(currentCall).padStart(3,'0')} 號</b> ➔ 預估安排您於 <b>${String(overdueArrangeNum).padStart(3,'0')} 號</b> 後插入進去看診。
           </div>
         `;
