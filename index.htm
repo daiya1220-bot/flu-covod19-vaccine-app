@@ -105,8 +105,8 @@
       <div class="flex items-center gap-2">
         <div class="w-9 h-9 rounded-full bg-dusty-pink flex items-center justify-center text-white border-2 border-dusty-dark font-black text-lg">💉</div>
         <div>
-          <h1 class="text-base font-black text-dusty-dark">疫苗接種小助手</h1>
-          <p class="text-[10px] text-slate-500 font-bold">☁️ 雲端即時同步版</p>
+          <h1 class="text-base font-black text-dusty-dark">環安室 疫苗接種小助手</h1>
+          <p class="text-[10px] text-slate-500 font-bold">☁️ 雲端即時同步</p>
         </div>
       </div>
       <button onclick="toggleRoleModal()" class="hand-btn bg-dusty-purple text-dusty-purpleText text-xs px-2.5 py-1.5 font-bold">⚙️ 醫護後台</button>
@@ -689,7 +689,7 @@
           <div class="bg-white p-2 rounded-lg border border-dusty-dark text-[11px] leading-relaxed">
             📌 <b>過號叫號規則說明：</b><br>
             到達現場報到後需<b>再等候 2 號</b>。護理師每看 2位正常號會插入 1 位過號。以此類推…第2個過號便安插在第4個正常號後。<br>
-            目前看診：<b>${String(currentCall).padStart(3,'0')} 號</b> ➔ 預估安排您於 <b>${String(overdueArrangeNum).padStart(3,'0')} 號</b> 後插入進去看診。
+            例如：目前看診 <b>${String(currentCall).padStart(3,'0')} 號</b> ➔ 預估安排您於 <b>${String(overdueArrangeNum).padStart(3,'0')} 號</b> 後插入進去看診。
           </div>
         `;
       } else {
