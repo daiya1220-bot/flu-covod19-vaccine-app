@@ -5,56 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>環安室疫苗接種小助手 🧸 2026 長庚大學流感·新冠</title>
   
-  <!-- Tailwind CSS & Font Awesome & SortableJS (後台拖拉排序) -->
+  <!-- Tailwind CSS & Font Awesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-  
   <!-- Firebase 9.x SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    
+    // ✅ 自動帶入您的 Firebase 資料庫設定
     const firebaseConfig = {
       databaseURL: "https://flu-vaccine-2026-default-rtdb.firebaseio.com"
     };
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const stateRef = ref(db, 'vaccine_state');
-    
-    // 全域狀態：包含三個獨立關卡佇列與民眾狀態
+    // 全域狀態（含叫號、雲端報到名冊、完整雲端問卷、即時廣播）
     window.state = {
-      stations: {
-        station1: { name: "1. 掛號櫃台", current: "000", queue: [] },
-        station2: { name: "2. 醫師問診", current: "000", queue: [] },
-        station3: { name: "3. 疫苗接種", current: "000", queue: [] }
-      },
+      station1: 0,
+      station2: 0,
+      station3: 0,
       lastTicketNum: 0,
       broadcastMsg: "現場廣播：請依現場三站叫號燈號依序前往。✨",
       lastUpdated: "--:--",
       registry: [],
       surveys: []
     };
-    
     // 1. 即時監聽雲端變更
     onValue(stateRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         window.state = data;
-        if (!window.state.stations) {
-          window.state.stations = {
-            station1: { name: "1. 掛號櫃台", current: "000", queue: [] },
-            station2: { name: "2. 醫師問診", current: "000", queue: [] },
-            station3: { name: "3. 疫苗接種", current: "000", queue: [] }
-          };
-        }
         if (!window.state.registry) window.state.registry = [];
         if (!window.state.surveys) window.state.surveys = [];
         window.updateUI();
       }
     });
-    
     // 2. 同步資料至雲端
     window.syncState = function() {
       window.state.lastUpdated = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
@@ -101,6 +87,7 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
+    /* 鍵盤彈起時，底部導覽列滑出畫面下方，並增加外層容器底部間距確保內容可視 */
     body.keyboard-open #bottom-nav {
       transform: translateY(120%) !important;
       pointer-events: none;
@@ -124,15 +111,13 @@
       </div>
       <button onclick="toggleRoleModal()" class="hand-btn bg-dusty-purple text-dusty-purpleText text-xs px-2.5 py-1.5 font-bold">⚙️ 醫護後台</button>
     </header>
-
-    <!-- 廣播 Banner -->
+    <!-- 廣播 Banner (即時同步顯示) -->
     <div id="broadcastBanner" class="mx-4 mt-3 bg-dusty-yellow p-3 rounded-2xl border-2 border-dusty-dark text-xs font-bold text-dusty-yellowText flex items-center justify-between shadow-[2px_2px_0px_#3D3435]">
       <div class="flex items-center gap-2 overflow-hidden">
         <span>📢</span>
         <span id="broadcastText" class="truncate">載入廣播中...</span>
       </div>
     </div>
-
     <!-- 主要內容區 -->
     <main class="p-4 space-y-4 overflow-y-auto">
       
@@ -148,33 +133,19 @@
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="bg-dusty-cream p-2.5 rounded-2xl border-2 border-dusty-dark">
               <p class="text-[11px] font-bold text-slate-600">1. 掛號櫃台</p>
-              <div class="text-lg font-black text-dusty-dark my-1 truncate" id="callStation1">000</div>
+              <div class="text-2xl font-black text-dusty-dark my-1" id="callStation1">000</div>
             </div>
             <div class="bg-dusty-yellow/60 p-2.5 rounded-2xl border-2 border-dusty-dark">
               <p class="text-[11px] font-bold text-dusty-yellowText">2. 醫師問診</p>
-              <div class="text-lg font-black text-dusty-dark my-1 truncate" id="callStation2">000</div>
+              <div class="text-2xl font-black text-dusty-dark my-1" id="callStation2">000</div>
             </div>
             <div class="bg-dusty-mint p-2.5 rounded-2xl border-2 border-dusty-dark">
-              <p class="text-[11px] font-bold text-dusty-mintText">3. 疫苗接種</p>
-              <div class="text-lg font-black text-dusty-dark my-1 truncate" id="callStation3">000</div>
+              <p class="text-[11px] font-bold text-dusty-mintText">3. 注射診間</p>
+              <div class="text-2xl font-black text-dusty-dark my-1" id="callStation3">000</div>
             </div>
           </div>
           <p class="text-[10px] text-center text-slate-400 font-bold">最後同步：<span id="lastUpdatedDisplay">--:--</span></p>
         </div>
-
-        <!-- 三關即時候診順序預告看板 -->
-        <div class="hand-card bg-white p-4 space-y-3">
-          <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
-            <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
-              <span>👀</span> 各診間候診隊列（即時同步後台排序）
-            </h3>
-            <span class="text-[10px] text-slate-400 font-bold">依序解鎖中</span>
-          </div>
-          <div class="space-y-3 text-xs" id="publicUpcomingContainer">
-            <!-- 內由 JavaScript 動態渲染 -->
-          </div>
-        </div>
-
         <!-- 自助報到 -->
         <div class="hand-card bg-dusty-cream p-4 space-y-3">
           <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
@@ -183,7 +154,7 @@
           <div class="space-y-2">
             <div>
               <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">姓名 / 綽號：</label>
-              <input type="text" id="checkinName" placeholder="例如：王大明" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
+              <input type="text" id="checkinName" placeholder="例如：王大明 或 Alex Wang" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">身分證號末 5 碼：</label>
@@ -203,18 +174,16 @@
             <p class="text-xs text-emerald-800 font-bold" id="myTicketName"></p>
           </div>
         </div>
-
-        <!-- 號碼對照與進度查詢 -->
+        <!-- 號碼對照 -->
         <div class="hand-card bg-dusty-yellow/60 p-4 space-y-2">
-          <h3 class="text-xs font-bold text-dusty-dark">🎫 查詢個人目前關卡與候診進度</h3>
+          <h3 class="text-xs font-bold text-dusty-dark">🎫 查詢我的號碼進度（含過號插隊規則說明）</h3>
           <div class="flex gap-2">
-            <input type="text" id="myNumberInput" placeholder="輸入號碼 (例如 003)" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold text-center">
-            <button onclick="checkQueueStatus()" class="hand-btn bg-dusty-yellow text-dusty-dark font-bold px-4 py-1.5 text-xs shrink-0">🔍 查詢</button>
+            <input type="number" id="myNumberInput" placeholder="輸入號碼 (例如 20)" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold text-center">
+            <button onclick="checkQueueStatus()" class="hand-btn bg-dusty-yellow text-dusty-dark font-bold px-4 py-1.5 text-xs shrink-0">🔍 對照</button>
           </div>
           <div id="queueResult" class="hidden p-2.5 rounded-xl text-xs font-bold text-center border-2 border-dusty-dark space-y-1"></div>
         </div>
       </section>
-
       <!-- TAB 2: 接種須知 -->
       <section id="tab-info" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-white p-5 space-y-3">
@@ -237,8 +206,7 @@
           </div>
         </div>
       </section>
-
-      <!-- TAB 3: 衛教問答 -->
+      <!-- TAB 3: 衛教問答 & 勇者勳章 -->
       <section id="tab-quiz" class="tab-content space-y-4 hidden">
         <div id="quizContainerBox" class="hand-card bg-dusty-purple/40 p-5 space-y-4">
           <div class="flex justify-between items-center text-xs font-bold text-dusty-purpleText border-b border-purple-200 pb-2">
@@ -250,7 +218,7 @@
           <div id="quizFeedbackBox" class="hidden p-3 rounded-2xl text-xs font-bold border-2 border-dusty-dark"></div>
           <button id="nextQuizBtn" onclick="nextQuizQuestion()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs hidden">下一題 ✨</button>
         </div>
-
+        <!-- 數位勇者勳章（供現場兌換小禮物核對用） -->
         <div id="heroBadgeCard" class="hidden hand-card bg-white p-6 text-center space-y-4 border-2 border-dusty-dark">
           <div class="inline-block bg-dusty-pink text-white text-xs font-black px-4 py-1.5 rounded-full border border-dusty-dark">
             🏆 今日抗體勇者認證
@@ -268,14 +236,16 @@
           </div>
         </div>
       </section>
-
-      <!-- TAB 4: 滿意度問卷 -->
+      <!-- TAB 4: 完整 5 星滿意度雲端問卷 -->
       <section id="tab-survey" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-dusty-cream p-5 space-y-4">
           <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
             <span>⭐</span> 活動滿意度與服務問卷
           </h2>
+          <p class="text-[11px] text-slate-600 font-bold">感謝您參與本次接種活動，請點選星星為各項服務評分：</p>
           <form id="surveyForm" onsubmit="submitCloudSurvey(event)" class="space-y-3 text-xs font-bold">
+            
+            <!-- Q1 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">1. 接種流程動線與現場等待時間</p>
               <div class="flex items-center justify-between">
@@ -286,10 +256,76 @@
                   <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q1', 4)"></i>
                   <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q1', 5)"></i>
                 </div>
-                <span class="text-slate-500 text-[11px] q1-label">5分</span>
+                <span class="text-slate-500 text-[11px] q1-label">5分 (非常滿意)</span>
               </div>
               <input type="hidden" id="val-q1" value="5">
             </div>
+            <!-- Q2 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">2. 場地環境舒適度與指標清晰度</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q2">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q2', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q2-label">5分 (非常滿意)</span>
+              </div>
+              <input type="hidden" id="val-q2" value="5">
+            </div>
+            <!-- Q3 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">3. 現場醫護與工作人員服務態度</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q3">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q3', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q3-label">5分 (非常滿意)</span>
+              </div>
+              <input type="hidden" id="val-q3" value="5">
+            </div>
+            <!-- Q4 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">4. 接種前衛教與注意事項說明清晰度</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q4">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q4', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q4-label">5分 (非常清晰)</span>
+              </div>
+              <input type="hidden" id="val-q4" value="5">
+            </div>
+            <!-- Q5 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">5. 本次流感疫苗接種活動綜合評價</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-1 text-lg text-amber-400 star-group" data-name="q5">
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 1)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 2)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 3)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 4)"></i>
+                  <i class="fa-solid fa-star cursor-pointer" onclick="setStar('q5', 5)"></i>
+                </div>
+                <span class="text-slate-500 text-[11px] q5-label">5分 (非常滿意)</span>
+              </div>
+              <input type="hidden" id="val-q5" value="5">
+            </div>
+            <!-- Q6 開放題 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <p class="text-dusty-dark">6. 您對於未來辦理疫苗接種活動的寶貴建議或心得（選填）：</p>
+              <textarea id="q6Comment" rows="2" placeholder="寫下您的改善建議或想說的話..." class="hand-input w-full p-2 text-xs font-normal"></textarea>
+            </div>
+            
             <button type="submit" class="hand-btn w-full bg-dusty-mint text-dusty-mintText font-bold py-2.5 text-xs">
               ☁️ 提交問卷至雲端
             </button>
@@ -300,334 +336,198 @@
         </div>
       </section>
     </main>
-
-    <!-- 底部導覽列 -->
+    <!-- 底部導覽列（含手繪可愛動物圖示與動態避開軟鍵盤處理） -->
     <nav id="bottom-nav" class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-35 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1 transition-all duration-300">
       <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
+          <path d="M15 25 C10 10 18 5 20 20 C22 5 30 10 25 25" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="20" cy="35" rx="12" ry="14" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="16" cy="32" r="1.5" fill="#3D3435"/><circle cx="24" cy="32" r="1.5" fill="#3D3435"/>
+        </svg>
         <span class="text-[9px]">叫號報到</span>
       </button>
       <button onclick="switchTab('info')" id="nav-info" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 60 70">
+          <circle cx="16" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <circle cx="44" cy="22" r="6" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="30" cy="33" rx="16" ry="15" fill="#B08968" stroke="#3D3435" stroke-width="2.5"/>
+        </svg>
         <span class="text-[9px]">接種須知</span>
       </button>
       <button onclick="switchTab('quiz')" id="nav-quiz" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
+          <polygon points="12,24 20,10 24,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <polygon points="38,24 30,10 26,26" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+          <ellipse cx="25" cy="34" rx="14" ry="13" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
+        </svg>
         <span class="text-[9px]">衛教問答</span>
       </button>
       <button onclick="switchTab('survey')" id="nav-survey" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
+          <ellipse cx="12" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
+          <ellipse cx="38" cy="30" rx="5" ry="10" fill="#E8B4B4" stroke="#3D3435" stroke-width="2"/>
+          <ellipse cx="25" cy="33" rx="13" ry="12" fill="#E8B4B4" stroke="#3D3435" stroke-width="2.5"/>
+        </svg>
         <span class="text-[9px]">回饋問卷</span>
       </button>
     </nav>
   </div>
-
-  <!-- 醫護人員雲端控制台 Modal -->
+  <!-- 醫護人員雲端控制台 Modal (內含廣播推播控制) -->
   <div id="roleModal" class="fixed inset-0 bg-dusty-dark/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="hand-card bg-white max-w-md w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="text-base font-bold">👩‍⚕️ 醫護雲端控制台 (拖拉與依序解鎖)</h3>
+    <div class="hand-card bg-white max-w-sm w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center">
+        <h3 class="text-base font-bold">👩‍⚕️ 醫護雲端控制台</h3>
         <button onclick="toggleRoleModal()" class="text-slate-400 font-bold">✕</button>
       </div>
       <div id="authBox" class="space-y-2">
-        <input type="password" id="pinInput" placeholder="請輸入 PIN 碼 (預設 8888)" class="w-full border-2 border-dusty-dark rounded-xl px-3 py-2 text-center text-xs font-bold">
+        <input type="password" id="pinInput" placeholder="請輸入 PIN 碼 " class="w-full border-2 border-dusty-dark rounded-xl px-3 py-2 text-center text-xs font-bold">
         <button onclick="verifyPin()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs">進入後台</button>
       </div>
       <div id="controlBox" class="space-y-4 hidden">
         
-        <!-- 關卡選擇 Tabs -->
-        <div class="flex bg-slate-100 p-1 rounded-xl border-2 border-dusty-dark text-xs font-bold text-center">
-          <button onclick="switchAdminTab('station1')" id="adm-tab-1" class="flex-1 py-1.5 rounded-lg bg-white border border-dusty-dark shadow-sm">1. 掛號櫃台</button>
-          <button onclick="switchAdminTab('station2')" id="adm-tab-2" class="flex-1 py-1.5 rounded-lg text-slate-500">2. 醫師問診</button>
-          <button onclick="switchAdminTab('station3')" id="adm-tab-3" class="flex-1 py-1.5 rounded-lg text-slate-500">3. 疫苗接種</button>
+        <!-- 三站叫號控制（已新增 + / - 按鈕） -->
+        <div class="bg-dusty-mint p-3 rounded-xl border-2 border-dusty-dark space-y-2.5 text-xs font-bold">
+          <p class="text-dusty-mintText border-b border-dusty-mintText/20 pb-1">🎛️ 三站叫號燈號調整</p>
+          
+          <!-- 站 1 -->
+          <div class="flex justify-between items-center">
+            <span>1. 掛號櫃台：</span>
+            <div class="flex items-center gap-1">
+              <button onclick="adjustStation('station1', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
+              <input type="number" id="adminCall1" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
+              <button onclick="adjustStation('station1', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
+            </div>
+          </div>
+          <!-- 站 2 -->
+          <div class="flex justify-between items-center">
+            <span>2. 醫師問診：</span>
+            <div class="flex items-center gap-1">
+              <button onclick="adjustStation('station2', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
+              <input type="number" id="adminCall2" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
+              <button onclick="adjustStation('station2', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
+            </div>
+          </div>
+          <!-- 站 3 -->
+          <div class="flex justify-between items-center">
+            <span>3. 接種注射：</span>
+            <div class="flex items-center gap-1">
+              <button onclick="adjustStation('station3', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
+              <input type="number" id="adminCall3" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
+              <button onclick="adjustStation('station3', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
+            </div>
+          </div>
+          <button onclick="saveAllStations()" class="hand-btn w-full bg-dusty-mintText text-white py-2 mt-1">📡 廣播同步三站號碼</button>
         </div>
-
-        <!-- 各站獨立控制與拖拉佇列面板 -->
-        <div id="adminStationPanel" class="space-y-3">
-          <!-- JavaScript 動態塞入面板 -->
+        <!-- 📢 推送現場廣播控制區 -->
+        <div class="bg-dusty-yellow/60 p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
+          <label class="block text-dusty-yellowText">📢 推送現場即時廣播公告：</label>
+          <input type="text" id="adminBroadcastInput" placeholder="例如：上午場即將額滿，請加快報到" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold">
+          <button onclick="sendBroadcast()" class="hand-btn w-full bg-dusty-yellow text-dusty-yellowText py-1.5">發布廣播至全場手機</button>
         </div>
-
-        <!-- 廣播控制區 -->
-        <div class="bg-dusty-yellow/60 p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold pt-3">
-          <label class="block text-dusty-yellowText">📢 推送現場即時廣播：</label>
-          <input type="text" id="adminBroadcastInput" placeholder="輸入廣播內容" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold">
-          <button onclick="sendBroadcast()" class="hand-btn w-full bg-dusty-yellow text-dusty-yellowText py-1.5">發布廣播</button>
-        </div>
-
-        <!-- 民眾總名冊（顯示目前進度與關卡解鎖狀態） -->
+        <!-- 雲端報到名冊（顯示最近 5 個號碼與人名） -->
         <div class="space-y-1">
           <div class="flex justify-between items-center">
-            <span class="text-xs font-bold">全場民眾進度名冊 (總計 <span id="totalCheckinCount">0</span> 人)</span>
-            <button onclick="exportCSV()" class="text-[10px] bg-dusty-pink text-white px-2 py-0.5 rounded font-bold">下載 CSV</button>
+            <span class="text-xs font-bold">雲端報到名冊 (總計 <span id="totalCheckinCount">0</span> 人，最近5筆)</span>
+            <button onclick="exportCSV('registry')" class="text-[10px] bg-dusty-pink text-white px-2 py-0.5 rounded font-bold">下載 CSV</button>
           </div>
-          <div class="bg-slate-50 border-2 border-dusty-dark rounded-xl p-2 max-h-40 overflow-y-auto text-[10px]">
+          <div class="bg-slate-50 border-2 border-dusty-dark rounded-xl p-2 max-h-32 overflow-y-auto text-[10px]">
             <table class="w-full text-left"><tbody id="registryList"><tr><td class="text-gray-400">尚無資料</td></tr></tbody></table>
+          </div>
+        </div>
+        <!-- 雲端問卷回饋 -->
+        <div class="space-y-1 pt-2 border-t border-slate-200">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold">雲端問卷回饋 (<span id="totalSurveyCount">0</span> 份)</span>
+            <button onclick="exportCSV('survey')" class="text-[10px] bg-dusty-yellow text-dusty-dark px-2 py-0.5 rounded font-bold border border-dusty-dark">下載問卷 CSV</button>
+          </div>
+          <div class="bg-slate-50 border-2 border-dusty-dark rounded-xl p-2 max-h-28 overflow-y-auto text-[10px] space-y-1" id="surveyRecordList">
+            <p class="text-gray-400 text-center">尚無問卷資料</p>
           </div>
         </div>
       </div>
     </div>
   </div>
-
   <script>
-    let currentAdminStation = 'station1';
-    let sortableInstance = null;
-
+    // 自動監聽輸入框 focus/blur 事件，打字時自動隱藏底部 Navigation Bar 避免遮擋
     document.addEventListener('DOMContentLoaded', () => {
       const inputs = document.querySelectorAll('input, textarea');
       inputs.forEach(input => {
         input.addEventListener('focus', () => {
           document.body.classList.add('keyboard-open');
-          setTimeout(() => input.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
+          // 確保聚焦時自動滾動至可視區域
+          setTimeout(() => {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 250);
         });
-        input.addEventListener('blur', () => document.body.classList.remove('keyboard-open'));
+        input.addEventListener('blur', () => {
+          document.body.classList.remove('keyboard-open');
+        });
       });
     });
 
-    // 核心 UI 更新
     window.updateUI = function() {
-      if (!window.state.stations) return;
-      
-      ['station1', 'station2', 'station3'].forEach((sKey, idx) => {
-        const st = window.state.stations[sKey];
-        document.getElementById(`callStation${idx+1}`).innerText = st.current;
-      });
-
+      document.getElementById('callStation1').innerText = String(window.state.station1 || 0).padStart(3, '0');
+      document.getElementById('callStation2').innerText = String(window.state.station2 || 0).padStart(3, '0');
+      document.getElementById('callStation3').innerText = String(window.state.station3 || 0).padStart(3, '0');
       document.getElementById('lastUpdatedDisplay').innerText = window.state.lastUpdated || '--:--';
       document.getElementById('broadcastText').innerText = window.state.broadcastMsg || '';
-      document.getElementById('publicCheckinCount').innerText = (window.state.registry || []).length;
       
-      if (document.getElementById('adminBroadcastInput') && document.getElementById('adminBroadcastInput').value === '') {
+      const regCount = (window.state.registry || []).length;
+      document.getElementById('publicCheckinCount').innerText = regCount;
+      if (document.getElementById('adminCall1')) {
+        document.getElementById('adminCall1').value = window.state.station1 || 0;
+        document.getElementById('adminCall2').value = window.state.station2 || 0;
+        document.getElementById('adminCall3').value = window.state.station3 || 0;
+      }
+      if (document.getElementById('adminBroadcastInput')) {
         document.getElementById('adminBroadcastInput').value = window.state.broadcastMsg || '';
       }
-
-      renderPublicUpcoming();
       renderRegistry();
-      if (!document.getElementById('roleModal').classList.contains('hidden')) {
-        renderAdminStationPanel();
-      }
+      renderSurveys();
     };
-
-    function toggleRoleModal() { 
-      document.getElementById('roleModal').classList.toggle('hidden'); 
-      if(!document.getElementById('roleModal').classList.contains('hidden')) renderAdminStationPanel(); 
-    }
-    
+    function toggleRoleModal() { document.getElementById('roleModal').classList.toggle('hidden'); }
     function verifyPin() {
       if (document.getElementById('pinInput').value === '8888') {
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('controlBox').classList.remove('hidden');
-        renderAdminStationPanel();
       } else { alert("PIN 碼錯誤！"); }
     }
-
-    function switchAdminTab(stationKey) {
-      currentAdminStation = stationKey;
-      ['station1', 'station2', 'station3'].forEach((k, idx) => {
-        const btn = document.getElementById(`adm-tab-${idx+1}`);
-        btn.className = (k === stationKey) ? 
-          "flex-1 py-1.5 rounded-lg bg-white border border-dusty-dark shadow-sm font-bold text-dusty-dark" : 
-          "flex-1 py-1.5 rounded-lg text-slate-500 font-bold";
-      });
-      renderAdminStationPanel();
+    // 快速增減按鈕邏輯 (+/-)
+    function adjustStation(stationKey, delta) {
+      const inputEl = document.getElementById(stationKey === 'station1' ? 'adminCall1' : stationKey === 'station2' ? 'adminCall2' : 'adminCall3');
+      let val = parseInt(inputEl.value) || 0;
+      val = Math.max(0, val + delta);
+      inputEl.value = val;
     }
-
-    // 判斷民眾是否已滿足叫號解鎖資格（前一關是否已完成）
-    function canBeCalled(ticketNumber, stationKey) {
-      if (stationKey === 'station1') return true; // 第 1 站（掛號）所有人報到即可叫號
-      const person = (window.state.registry || []).find(r => r.ticket === ticketNumber);
-      if (!person || !person.history) return false;
-      
-      if (stationKey === 'station2') return person.history.includes('station1'); // 完成第 1 站才可進行第 2 站叫號
-      if (stationKey === 'station3') return person.history.includes('station2'); // 完成第 2 站才可進行第 3 站叫號
-      return false;
-    }
-
-    // 渲染後台單一關卡的控制面板（包含拖拉排序與防呆標示）
-    function renderAdminStationPanel() {
-      const panel = document.getElementById('adminStationPanel');
-      const st = window.state.stations[currentAdminStation];
-      
-      let html = `
-        <div class="bg-dusty-mint p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
-          <div class="flex justify-between items-center border-b border-dusty-mintText/20 pb-1">
-            <span class="text-dusty-mintText font-black">📍 目前關卡：${st.name}</span>
-            <span class="text-dusty-dark">目前叫號：<b class="text-sm text-rose-600">${st.current}</b></span>
-          </div>
-          <div class="flex gap-2 pt-1">
-            <button onclick="callNextPatient('${currentAdminStation}')" class="hand-btn flex-1 bg-dusty-mintText text-white py-2 font-black text-xs">
-              🔊 叫號（叫佇列第一位）
-            </button>
-          </div>
-          <p class="text-[10px] text-slate-600">💡 拖拉即可自由調整順序。新報到者自動加入尾端，不覆蓋現有排序。</p>
-          
-          <!-- 拖拉佇列容器 -->
-          <div id="draggableQueueList" class="space-y-1.5 max-h-48 overflow-y-auto bg-white p-2 rounded-lg border border-dusty-dark">
-      `;
-
-      if (!st.queue || st.queue.length === 0) {
-        html += `<p class="text-gray-400 text-center py-4 text-[10px]">目前無候診人員</p>`;
-      } else {
-        st.queue.forEach((item, idx) => {
-          const isEligible = canBeCalled(item.ticketNumber, currentAdminStation);
-          const displayLabel = item.isOverdue ? `${item.ticketNumber}號（過號）` : `${item.ticketNumber}號`;
-          
-          html += `
-            <div data-id="${item.ticketNumber}" class="flex justify-between items-center bg-dusty-cream/60 p-2 rounded border border-dusty-dark cursor-grab active:cursor-grabbing">
-              <div class="flex items-center gap-1.5 overflow-hidden">
-                <span class="text-slate-400">☰</span>
-                <span class="font-black ${item.isOverdue ? 'text-amber-800' : 'text-dusty-dark'}">${displayLabel}</span>
-                <span class="text-[10px] text-slate-600 truncate">(${item.name})</span>
-                ${!isEligible ? `<span class="bg-rose-100 text-rose-800 border border-rose-300 text-[9px] px-1 rounded font-black shrink-0">⛔ 未完成前一關</span>` : ''}
-              </div>
-              <div class="flex gap-1 shrink-0">
-                ${!item.isOverdue ? `<button onclick="markOverdue('${currentAdminStation}', ${idx})" class="bg-amber-500 text-white px-1.5 py-0.5 rounded text-[9px]">過號</button>` : ''}
-                <button onclick="removeFromQueue('${currentAdminStation}', ${idx})" class="bg-rose-500 text-white px-1.5 py-0.5 rounded text-[9px]">刪除</button>
-              </div>
-            </div>
-          `;
-        });
-      }
-
-      html += `</div></div>`;
-      panel.innerHTML = html;
-
-      // 初始化拖拉功能
-      const el = document.getElementById('draggableQueueList');
-      if (el && !el.querySelector('p')) {
-        if (sortableInstance) sortableInstance.destroy();
-        sortableInstance = Sortable.create(el, {
-          animation: 150,
-          onEnd: function (evt) {
-            const movedItem = st.queue.splice(evt.oldIndex, 1)[0];
-            st.queue.splice(evt.newIndex, 0, movedItem);
-            window.syncState();
-          }
-        });
-      }
-    }
-
-    // 叫下一位號碼（防呆關鍵：若排在隊列第一位的人尚未解鎖，阻止叫號！）
-    function callNextPatient(stationKey) {
-      const st = window.state.stations[stationKey];
-      if (!st.queue || st.queue.length === 0) {
-        alert("目前該關卡無候診人員！");
-        return;
-      }
-
-      const nextItem = st.queue[0];
-
-      // 🛡️ 防呆驗證：判斷是否完成了前一關！
-      if (!canBeCalled(nextItem.ticketNumber, stationKey)) {
-        const prevStationName = stationKey === 'station2' ? '1. 掛號櫃台' : '2. 醫師問診';
-        alert(`⛔ 【流程防呆擋截】\n\n號碼 ${nextItem.ticketNumber}號 (${nextItem.name}) 尚未完成「${prevStationName}」！\n即使將其拖拉至第一位，系統仍禁止叫號。請先完成前一關卡。`);
-        return;
-      }
-
-      // 驗證通過，正式叫號並移除該佇列項目
-      st.queue.shift();
-      st.current = nextItem.isOverdue ? `${nextItem.ticketNumber}號（過號）` : `${nextItem.ticketNumber}號`;
-      
-      // 更新民眾個人完成歷程
-      const regPerson = (window.state.registry || []).find(r => r.ticket === nextItem.ticketNumber);
-      if (regPerson) {
-        if (!regPerson.history) regPerson.history = [];
-        if (!regPerson.history.includes(stationKey)) {
-          regPerson.history.push(stationKey);
-        }
-
-        // 自動將該民眾加入下一關的候診隊列（三關依序解鎖）
-        if (stationKey === 'station1' && !window.state.stations.station2.queue.some(q => q.ticketNumber === nextItem.ticketNumber)) {
-          window.state.stations.station2.queue.push({ ticketNumber: nextItem.ticketNumber, name: nextItem.name, isOverdue: false });
-        } else if (stationKey === 'station2' && !window.state.stations.station3.queue.some(q => q.ticketNumber === nextItem.ticketNumber)) {
-          window.state.stations.station3.queue.push({ ticketNumber: nextItem.ticketNumber, name: nextItem.name, isOverdue: false });
-        }
-      }
-
-      window.state.broadcastMsg = `📢 請 ${st.name} 叫號：請 ${st.current} (${nextItem.name}) 前往看診！`;
+    function saveAllStations() {
+      window.state.station1 = parseInt(document.getElementById('adminCall1').value) || 0;
+      window.state.station2 = parseInt(document.getElementById('adminCall2').value) || 0;
+      window.state.station3 = parseInt(document.getElementById('adminCall3').value) || 0;
       window.syncState();
-      renderAdminStationPanel();
+      alert("三站號碼已同步至全場！");
     }
-
-    // 標記過號：保留原始號碼，文字顯示「X號（過號）」並放到佇列末端
-    function markOverdue(stationKey, index) {
-      const st = window.state.stations[stationKey];
-      const item = st.queue.splice(index, 1)[0];
-      item.isOverdue = true;
-      st.queue.push(item); // 移至隊列後端重新排隊
-      window.syncState();
-      renderAdminStationPanel();
-    }
-
-    function removeFromQueue(stationKey, index) {
-      window.state.stations[stationKey].queue.splice(index, 1);
-      window.syncState();
-      renderAdminStationPanel();
-    }
-
-    // 前台預告渲染（顯示三站獨立順序）
-    function renderPublicUpcoming() {
-      const container = document.getElementById('publicUpcomingContainer');
-      if (!window.state.stations) return;
-
-      let html = '';
-      ['station1', 'station2', 'station3'].forEach((sKey) => {
-        const st = window.state.stations[sKey];
-        const nextThree = (st.queue || []).slice(0, 3);
-        
-        html += `
-          <div class="bg-dusty-cream/50 p-2.5 rounded-xl border border-dusty-dark space-y-1">
-            <div class="flex justify-between font-bold text-xs text-dusty-dark border-b border-dusty-dark/10 pb-1">
-              <span>📍 ${st.name} <span class="text-[10px] text-slate-500">(目前看診: <b class="text-rose-600">${st.current}</b>)</span></span>
-            </div>
-            <div class="flex gap-1.5 pt-1 overflow-x-auto no-scrollbar">
-        `;
-
-        if (nextThree.length === 0) {
-          html += `<span class="text-[10px] text-gray-400">目前無候診隊列</span>`;
-        } else {
-          nextThree.forEach((item, idx) => {
-            const label = item.isOverdue ? `${item.ticketNumber}號（過號）` : `${item.ticketNumber}號`;
-            html += `
-              <div class="bg-white px-2 py-1 rounded border border-dusty-dark text-[10px] font-bold shrink-0">
-                順位${idx+1}: <span class="${item.isOverdue ? 'text-amber-700' : 'text-dusty-dark'}">${label}</span> (${item.name})
-              </div>
-            `;
-          });
-        }
-        html += `</div></div>`;
-      });
-      container.innerHTML = html;
-    }
-
+    // 發布廣播至雲端
     function sendBroadcast() {
       const msg = document.getElementById('adminBroadcastInput').value.trim();
       if (!msg) { alert("請輸入廣播內容！"); return; }
       window.state.broadcastMsg = msg;
       window.syncState();
-      alert("📢 廣播已同步！");
+      alert("📢 現場廣播已秒速推播至全場 200 人手機！");
     }
-
-    // 民眾自主報到：自動帶入第 1 站（掛號櫃台）
+    // 民眾自主報到
     function submitCloudCheckin() {
       const name = document.getElementById('checkinName').value.trim();
       const id5 = document.getElementById('checkinId').value.trim();
       const temp = document.getElementById('checkinTemp').value.trim();
       if (!name || !id5 || !temp) { alert("請完整填寫報到資料！"); return; }
-      
       if (!window.state.lastTicketNum) window.state.lastTicketNum = 0;
       window.state.lastTicketNum++;
-      const ticketNum = String(window.state.lastTicketNum).padStart(3, '0');
+      const ticket = String(window.state.lastTicketNum).padStart(3, '0');
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
       if (!window.state.registry) window.state.registry = [];
-      window.state.registry.unshift({ name, id: id5, temp, ticket: ticketNum, time, history: [] });
-
-      // 自動加入第 1 站佇列
-      if (!window.state.stations.station1.queue) window.state.stations.station1.queue = [];
-      window.state.stations.station1.queue.push({
-        ticketNumber: ticketNum,
-        name: name,
-        isOverdue: false
-      });
-
+      window.state.registry.unshift({ name, id: id5, temp, ticket, time });
       window.syncState();
-      document.getElementById('myTicketNum').textContent = ticketNum;
+      document.getElementById('myTicketNum').textContent = ticket;
       document.getElementById('myTicketName').textContent = `${name} 報到成功！`;
       document.getElementById('myTicketBox').classList.remove('hidden');
       document.getElementById('checkinName').value = '';
@@ -635,87 +535,7 @@
       document.getElementById('checkinTemp').value = '';
       if (typeof confetti === 'function') confetti({ particleCount: 50 });
     }
-
-    // 渲染全場名冊與過關狀態
-    function renderRegistry() {
-      const tbody = document.getElementById('registryList');
-      const reg = window.state.registry || [];
-      document.getElementById('totalCheckinCount').textContent = reg.length;
-      if (reg.length === 0) { tbody.innerHTML = `<tr><td class="text-gray-400">尚無資料</td></tr>`; return; }
-      
-      tbody.innerHTML = reg.map(r => {
-        const h = r.history || [];
-        const statusStr = h.length === 3 ? '✅ 已完成全流程' : h.length === 2 ? '💉 待疫苗接種' : h.length === 1 ? '🩺 待醫師問診' : '📋 待掛號';
-        return `
-          <tr class="border-b text-[10px]">
-            <td class="py-1 font-bold"><b>${r.ticket}號</b></td>
-            <td>${r.name}</td>
-            <td class="text-emerald-700 font-bold">${statusStr}</td>
-            <td class="text-right">
-              <button onclick="manualAddToStation('${r.ticket}', '${r.name}', 'station2')" class="bg-amber-100 text-amber-900 border border-amber-300 px-1 py-0.5 rounded text-[9px] font-bold">手動加問診</button>
-              <button onclick="manualAddToStation('${r.ticket}', '${r.name}', 'station3')" class="bg-emerald-100 text-emerald-900 border border-emerald-300 px-1 py-0.5 rounded text-[9px] font-bold">手動加打針</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // 後台手動將民眾加至某站（如手動插入時，給予解鎖狀態提醒）
-    function manualAddToStation(ticketNum, name, stationKey) {
-      const st = window.state.stations[stationKey];
-      if (!st.queue) st.queue = [];
-      if (st.queue.some(q => q.ticketNumber === ticketNum)) {
-        alert(`號碼 ${ticketNum}號 已在該關卡佇列中！`);
-        return;
-      }
-      st.queue.push({ ticketNumber: ticketNum, name, isOverdue: false });
-      window.syncState();
-      alert(`已將 ${ticketNum}號 (${name}) 加入 ${st.name} 佇列！`);
-    }
-
-    function exportCSV() {
-      const data = window.state.registry || [];
-      if (data.length === 0) { alert("目前無資料"); return; }
-      let csv = "\uFEFF號碼,姓名,體溫,完成歷程,時間\n";
-      data.forEach(r => csv += `"${r.ticket}","${r.name}","${r.temp}","${(r.history||[]).join('->')}","${r.time}"\n`);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `疫苗接種總名冊_${new Date().toISOString().slice(0,10)}.csv`;
-      a.click();
-    }
-
-    function switchTab(key) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold");
-      document.getElementById(`tab-${key}`).classList.remove('hidden');
-    }
-
-    function checkQueueStatus() {
-      const val = document.getElementById('myNumberInput').value.trim();
-      const res = document.getElementById('queueResult');
-      if (!val) { alert("請輸入號碼"); return; }
-      res.classList.remove('hidden');
-      
-      const person = (window.state.registry || []).find(r => r.ticket === val || r.ticket === String(val).padStart(3,'0'));
-      if (!person) {
-        res.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-50 text-rose-800 border-2 border-dusty-dark block";
-        res.innerText = `❌ 查無號碼 ${val} 的報到紀錄，請先進行報到。`;
-        return;
-      }
-
-      const h = person.history || [];
-      let currentStage = h.length === 3 ? "🎉 已完成全部關卡" : h.length === 2 ? "3. 疫苗接種" : h.length === 1 ? "2. 醫師問診" : "1. 掛號櫃台";
-      
-      res.className = "p-3 rounded-xl text-xs font-bold text-left bg-emerald-50 text-emerald-900 border-2 border-dusty-dark block space-y-1";
-      res.innerHTML = `
-        <div class="font-black text-sm">✅ 號碼：${person.ticket}號 (${person.name})</div>
-        <div>目前所在進度關卡：<b class="text-dusty-pink font-black">${currentStage}</b></div>
-        <div class="text-[10px] text-slate-500 mt-1">📌 提示：請依照看板關注該關卡的即時叫號。</div>
-      `;
-    }
-
+    // 衛教問答邏輯
     const quizList = [
       { q: "1. 打完流感疫苗就不會得到普通感冒了嗎？", opts: [{ t: "⭕ 對，完全免疫", c: false }, { t: "❌ 錯，流感與一般感冒不同", c: true }], exp: "流感疫苗主要預防重症流感，對一般感冒病毒無效喔。" },
       { q: "2. 打完針之後，注射部位需要大力揉搓嗎？", opts: [{ t: "⭕ 需要用力揉促進吸收", c: false }, { t: "❌ 切勿用力揉，輕壓即可", c: true }], exp: "打完針後只需輕壓即可，用力揉容易造成區域皮下微血管破裂。" },
@@ -762,8 +582,8 @@
         if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70 });
       }
     }
-
-    const starLabels = { 1: "1分", 2: "2分", 3: "3分", 4: "4分", 5: "5分" };
+    // 星星互動（支援 5 題）
+    const starLabels = { 1: "1分 (需改善)", 2: "2分 (尚可)", 3: "3分 (普通)", 4: "4分 (滿意)", 5: "5分 (非常滿意)" };
     function setStar(qName, score) {
       document.getElementById(`val-${qName}`).value = score;
       const group = document.querySelector(`.star-group[data-name="${qName}"]`);
@@ -773,23 +593,123 @@
       const labelEl = document.querySelector(`.${qName}-label`);
       if (labelEl) labelEl.innerText = starLabels[score];
     }
+    // 提交完整 5 題雲端問卷
     function submitCloudSurvey(e) {
       e.preventDefault();
       const res = {
         q1: document.getElementById('val-q1').value,
+        q2: document.getElementById('val-q2').value,
+        q3: document.getElementById('val-q3').value,
+        q4: document.getElementById('val-q4').value,
+        q5: document.getElementById('val-q5').value,
+        q6: document.getElementById('q6Comment').value.trim() || '無',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       if (!window.state.surveys) window.state.surveys = [];
       window.state.surveys.unshift(res);
       window.syncState();
       document.getElementById('surveyForm').reset();
+      ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
       document.getElementById('surveySuccessMsg').classList.remove('hidden');
       if (typeof confetti === 'function') confetti({ particleCount: 80 });
       setTimeout(() => { document.getElementById('surveySuccessMsg').classList.add('hidden'); }, 4000);
     }
-
+    function renderRegistry() {
+      const tbody = document.getElementById('registryList');
+      const reg = window.state.registry || [];
+      document.getElementById('totalCheckinCount').textContent = reg.length;
+      if (reg.length === 0) { tbody.innerHTML = `<tr><td class="text-gray-400">尚無資料</td></tr>`; return; }
+      
+      // 顯示最近 5 個號碼與人名
+      const recentReg = reg.slice(0, 5);
+      tbody.innerHTML = recentReg.map(r => `<tr class="border-b"><td><b>${r.ticket}</b></td><td>${r.name}</td><td>${r.temp}°C</td><td class="text-right">${r.time}</td></tr>`).join('');
+    }
+    function renderSurveys() {
+      const box = document.getElementById('surveyRecordList');
+      const surveys = window.state.surveys || [];
+      document.getElementById('totalSurveyCount').textContent = surveys.length;
+      if (surveys.length === 0) { box.innerHTML = `<p class="text-gray-400 text-center">尚無問卷資料</p>`; return; }
+      box.innerHTML = surveys.map(s => `
+        <div class="border-b pb-1 mb-1">
+          <div class="flex justify-between font-bold text-slate-700">
+            <span>綜合評分: ${s.q5}★</span><span class="text-gray-400">${s.time}</span>
+          </div>
+          <p class="text-gray-500 text-[9px]">[動線:${s.q1} | 環境:${s.q2} | 態度:${s.q3} | 衛教:${s.q4}]</p>
+          <p class="text-gray-600 bg-white p-1 rounded mt-0.5">建議: ${s.q6}</p>
+        </div>
+      `).join('');
+    }
+    function exportCSV(type) {
+      const data = type === 'registry' ? (window.state.registry || []) : (window.state.surveys || []);
+      if (data.length === 0) { alert("目前尚無資料可下載！"); return; }
+      let csv = "\uFEFF";
+      if (type === 'registry') {
+        csv += "號碼,姓名,身分證5碼,體溫,時間\n";
+        data.forEach(r => csv += `"${r.ticket}","${r.name}","${r.id}","${r.temp}","${r.time}"\n`);
+      } else {
+        csv += "填寫時間,Q1動線,Q2環境,Q3態度,Q4衛教,Q5綜合評價,Q6建議心得\n";
+        data.forEach(s => csv += `"${s.time}","${s.q1}","${s.q2}","${s.q3}","${s.q4}","${s.q5}","${s.q6.replace(/"/g, '""')}"\n`);
+      }
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${type === 'registry' ? '報到名冊' : '問卷回饋'}_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+    function switchTab(key) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold");
+      document.getElementById(`tab-${key}`).classList.remove('hidden');
+      
+      const activeBtn = document.getElementById(`nav-${key}`);
+      if (key === 'calling') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]";
+      if (key === 'info') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-yellow border-2 border-dusty-dark text-dusty-yellowText font-bold shadow-[2px_2px_0px_#3D3435]";
+      if (key === 'quiz') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-purple border-2 border-dusty-dark text-dusty-purpleText font-bold shadow-[2px_2px_0px_#3D3435]";
+      if (key === 'survey') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-cream border-2 border-dusty-dark text-dusty-dark font-bold shadow-[2px_2px_0px_#3D3435]";
+    }
+    // 依據「過號則現場報到後再等 2 號，每看 2 位正常號，插入 1 位過號」規則計算預估進度
+    function checkQueueStatus() {
+      const myNum = parseInt(document.getElementById('myNumberInput').value);
+      const res = document.getElementById('queueResult');
+      if (!myNum || isNaN(myNum)) { alert("請輸入有效的號碼！"); return; }
+      res.classList.remove('hidden');
+      
+      const currentCall = window.state.station1; // 以第1站叫號為基準號
+      
+      if (myNum <= currentCall) {
+        // 🚨 這是過號狀況（個人號碼小於或等於目前已看診號碼）
+        // 規則：過號到現場報到後，需再等 2 位正常號，預估會在 (目前叫號 + 2) 號後進去看診
+        const overdueArrangeNum = currentCall + 2;
+        res.className = "p-3 rounded-xl text-xs font-bold text-left bg-amber-50 text-dusty-dark border-2 border-dusty-dark block space-y-1";
+        res.innerHTML = `
+          <div class="flex items-center gap-1 text-rose-600 font-extrabold text-xs">
+            <span>⚠️</span> 您的號碼 (${String(myNum).padStart(3,'0')}) 已過號！請告知報到櫃台工作人員
+          </div>
+          <div class="bg-white p-2 rounded-lg border border-dusty-dark text-[11px] leading-relaxed">
+            📌 <b>過號叫號規則說明：</b><br>
+            到達現場報到後需<b>再等候 2 號</b>。護理師每看 2位正常號會插入 1 位過號。以此類推…第2個過號便安插在第4個正常號後。<br>
+            例如：目前看診 <b>${String(currentCall).padStart(3,'0')} 號</b> ➔ 預估安排您於 <b>${String(overdueArrangeNum).padStart(3,'0')} 號</b> 後插入進去看診。
+          </div>
+        `;
+      } else {
+        // 🟢 正常未過號狀況
+        const diff = myNum - currentCall;
+        const estimatedCallNum = myNum + Math.floor(diff / 2);
+        res.className = "p-3 rounded-xl text-xs font-bold text-left bg-white text-slate-700 border-2 border-dusty-dark block space-y-1";
+        res.innerHTML = `
+          <div class="font-extrabold text-emerald-700">✅ 您的號碼 (${String(myNum).padStart(3,'0')}) 尚未叫到</div>
+          <div class="text-[11px] leading-relaxed">
+            目前第 1 站叫到：<b>${String(currentCall).padStart(3,'0')} 號</b><br>
+            尚需等待約 <b>${diff} 位</b> 正常號碼。<br>
+            <span class="text-slate-500">（考量現場過號插隊規則，預估約在 ${String(estimatedCallNum).padStart(3,'0')} 號前完成）</span>
+          </div>
+        `;
+      }
+    }
     window.onload = function() {
       renderQuiz();
+      ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
     };
   </script>
 </body>
