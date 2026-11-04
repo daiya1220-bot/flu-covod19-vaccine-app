@@ -63,8 +63,8 @@
     // 3. 🧹 完全重置所有資料（歸零）
     window.resetAllData = function() {
       if (confirm("⚠️ 確定要【清空所有資料】並歸零重來嗎？\n此操作將刪除：\n1. 三站所有叫號\n2. 雲端報到總名冊\n3. 過號登記紀錄\n4. 所有問卷回饋紀錄\n\n動作無法復原！")) {
-        const doubleCheck = prompt("為避免誤觸，請輸入Daiya生日 以確認完全重置：");
-        if (doubleCheck === '1220') {
+        const doubleCheck = prompt("為避免誤觸，請輸入 職護分機 以確認完全重置：");
+        if (doubleCheck === '3884') {
           window.state = {
             station1: "000",
             station2: "000",
