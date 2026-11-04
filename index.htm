@@ -9,21 +9,17 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
   <!-- Firebase 9.x SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
     // ✅ 自動帶入您的 Firebase 資料庫設定
     const firebaseConfig = {
       databaseURL: "https://flu-vaccine-2026-default-rtdb.firebaseio.com"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const stateRef = ref(db, 'vaccine_state');
-
     // 全域狀態（含叫號、雲端報到名冊、完整雲端問卷、即時廣播）
     window.state = {
       station1: 0,
@@ -35,7 +31,6 @@
       registry: [],
       surveys: []
     };
-
     // 1. 即時監聽雲端變更
     onValue(stateRef, (snapshot) => {
       const data = snapshot.val();
@@ -46,14 +41,12 @@
         window.updateUI();
       }
     });
-
     // 2. 同步資料至雲端
     window.syncState = function() {
       window.state.lastUpdated = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
       set(stateRef, window.state);
     };
   </script>
-
   <script>
     tailwind.config = {
       theme: {
@@ -95,7 +88,6 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-
 <body class="h-full antialiased font-sans flex flex-col justify-between select-none">
   <div class="max-w-md mx-auto w-full min-h-screen flex flex-col bg-dusty-pinkBg/30 border-x-2 border-dusty-dark shadow-2xl relative pb-28">
     
@@ -110,7 +102,6 @@
       </div>
       <button onclick="toggleRoleModal()" class="hand-btn bg-dusty-purple text-dusty-purpleText text-xs px-2.5 py-1.5 font-bold">⚙️ 醫護後台</button>
     </header>
-
     <!-- 廣播 Banner (即時同步顯示) -->
     <div id="broadcastBanner" class="mx-4 mt-3 bg-dusty-yellow p-3 rounded-2xl border-2 border-dusty-dark text-xs font-bold text-dusty-yellowText flex items-center justify-between shadow-[2px_2px_0px_#3D3435]">
       <div class="flex items-center gap-2 overflow-hidden">
@@ -118,17 +109,17 @@
         <span id="broadcastText" class="truncate">載入廣播中...</span>
       </div>
     </div>
-
     <!-- 主要內容區 -->
     <main class="p-4 space-y-4 overflow-y-auto">
       
       <!-- TAB 1: 叫號與報到 -->
       <section id="tab-calling" class="tab-content space-y-4">
         <div class="hand-card bg-white p-4 space-y-3">
-          <div class="text-center pb-2 border-b-2 border-dashed border-dusty-dark">
+          <div class="text-center pb-2 border-b-2 border-dashed border-dusty-dark flex justify-between items-center">
             <span class="inline-flex items-center gap-1.5 bg-dusty-mint text-dusty-mintText text-xs font-bold px-3 py-1 rounded-full border border-dusty-dark">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 全場雲端即時連線中
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 全場雲端即時連線
             </span>
+            <span class="text-xs font-bold text-slate-700">目前已報到：<span id="publicCheckinCount" class="text-dusty-pink font-black text-sm">0</span> 人</span>
           </div>
           <div class="grid grid-cols-3 gap-2 text-center">
             <div class="bg-dusty-cream p-2.5 rounded-2xl border-2 border-dusty-dark">
@@ -146,7 +137,6 @@
           </div>
           <p class="text-[10px] text-center text-slate-400 font-bold">最後同步：<span id="lastUpdatedDisplay">--:--</span></p>
         </div>
-
         <!-- 自助報到 -->
         <div class="hand-card bg-dusty-cream p-4 space-y-3">
           <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
@@ -175,18 +165,16 @@
             <p class="text-xs text-emerald-800 font-bold" id="myTicketName"></p>
           </div>
         </div>
-
         <!-- 號碼對照 -->
         <div class="hand-card bg-dusty-yellow/60 p-4 space-y-2">
-          <h3 class="text-xs font-bold text-dusty-dark">🎫 對照我的號碼進度</h3>
+          <h3 class="text-xs font-bold text-dusty-dark">🎫 對照我的號碼進度（過號插隊規則說明）</h3>
           <div class="flex gap-2">
-            <input type="number" id="myNumberInput" placeholder="輸入號碼 (例如 5)" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold text-center">
+            <input type="number" id="myNumberInput" placeholder="輸入號碼 (例如 20)" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold text-center">
             <button onclick="checkQueueStatus()" class="hand-btn bg-dusty-yellow text-dusty-dark font-bold px-4 py-1.5 text-xs shrink-0">🔍 對照</button>
           </div>
-          <div id="queueResult" class="hidden p-2 rounded-xl text-xs font-bold text-center border-2 border-dusty-dark"></div>
+          <div id="queueResult" class="hidden p-2.5 rounded-xl text-xs font-bold text-center border-2 border-dusty-dark space-y-1"></div>
         </div>
       </section>
-
       <!-- TAB 2: 接種須知 -->
       <section id="tab-info" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-white p-5 space-y-3">
@@ -209,7 +197,6 @@
           </div>
         </div>
       </section>
-
       <!-- TAB 3: 衛教問答 & 勇者勳章 -->
       <section id="tab-quiz" class="tab-content space-y-4 hidden">
         <div id="quizContainerBox" class="hand-card bg-dusty-purple/40 p-5 space-y-4">
@@ -222,7 +209,6 @@
           <div id="quizFeedbackBox" class="hidden p-3 rounded-2xl text-xs font-bold border-2 border-dusty-dark"></div>
           <button id="nextQuizBtn" onclick="nextQuizQuestion()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs hidden">下一題 ✨</button>
         </div>
-
         <!-- 數位勇者勳章（供現場兌換小禮物核對用） -->
         <div id="heroBadgeCard" class="hidden hand-card bg-white p-6 text-center space-y-4 border-2 border-dusty-dark">
           <div class="inline-block bg-dusty-pink text-white text-xs font-black px-4 py-1.5 rounded-full border border-dusty-dark">
@@ -241,7 +227,6 @@
           </div>
         </div>
       </section>
-
       <!-- TAB 4: 完整 5 星滿意度雲端問卷 -->
       <section id="tab-survey" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-dusty-cream p-5 space-y-4">
@@ -266,7 +251,6 @@
               </div>
               <input type="hidden" id="val-q1" value="5">
             </div>
-
             <!-- Q2 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">2. 場地環境舒適度與指標清晰度</p>
@@ -282,7 +266,6 @@
               </div>
               <input type="hidden" id="val-q2" value="5">
             </div>
-
             <!-- Q3 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">3. 現場醫護與工作人員服務態度</p>
@@ -298,7 +281,6 @@
               </div>
               <input type="hidden" id="val-q3" value="5">
             </div>
-
             <!-- Q4 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">4. 接種前衛教與注意事項說明清晰度</p>
@@ -314,7 +296,6 @@
               </div>
               <input type="hidden" id="val-q4" value="5">
             </div>
-
             <!-- Q5 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">5. 本次流感疫苗接種活動綜合評價</p>
@@ -330,7 +311,6 @@
               </div>
               <input type="hidden" id="val-q5" value="5">
             </div>
-
             <!-- Q6 開放題 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">6. 您對於未來辦理疫苗接種活動的寶貴建議或心得（選填）：</p>
@@ -347,7 +327,6 @@
         </div>
       </section>
     </main>
-
     <!-- 底部導覽列（含手繪可愛動物圖示） -->
     <nav class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-35 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1">
       <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]">
@@ -384,7 +363,6 @@
       </button>
     </nav>
   </div>
-
   <!-- 醫護人員雲端控制台 Modal (內含廣播推播控制) -->
   <div id="roleModal" class="fixed inset-0 bg-dusty-dark/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="hand-card bg-white max-w-sm w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -398,32 +376,56 @@
       </div>
       <div id="controlBox" class="space-y-4 hidden">
         
-        <!-- 三站叫號控制 -->
-        <div class="bg-dusty-mint p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
-          <div class="flex justify-between items-center"><span>1. 掛號：</span><input type="number" id="adminCall1" class="w-16 border rounded text-center" value="0"></div>
-          <div class="flex justify-between items-center"><span>2. 問診：</span><input type="number" id="adminCall2" class="w-16 border rounded text-center" value="0"></div>
-          <div class="flex justify-between items-center"><span>3. 注射：</span><input type="number" id="adminCall3" class="w-16 border rounded text-center" value="0"></div>
-          <button onclick="saveAllStations()" class="hand-btn w-full bg-dusty-mintText text-white py-1.5 mt-1">📡 廣播同步三站號碼</button>
-        </div>
+        <!-- 三站叫號控制（已新增 + / - 按鈕） -->
+        <div class="bg-dusty-mint p-3 rounded-xl border-2 border-dusty-dark space-y-2.5 text-xs font-bold">
+          <p class="text-dusty-mintText border-b border-dusty-mintText/20 pb-1">🎛️ 三站叫號燈號調整</p>
+          
+          <!-- 站 1 -->
+          <div class="flex justify-between items-center">
+            <span>1. 掛號：</span>
+            <div class="flex items-center gap-1">
+              <button onclick="adjustStation('station1', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
+              <input type="number" id="adminCall1" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
+              <button onclick="adjustStation('station1', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
+            </div>
+          </div>
+          <!-- 站 2 -->
+          <div class="flex justify-between items-center">
+            <span>2. 問診：</span>
+            <div class="flex items-center gap-1">
+              <button onclick="adjustStation('station2', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
+              <input type="number" id="adminCall2" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
+              <button onclick="adjustStation('station2', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
+            </div>
+          </div>
+          <!-- 站 3 -->
+          <div class="flex justify-between items-center">
+            <span>3. 注射：</span>
+            <div class="flex items-center gap-1">
+              <button onclick="adjustStation('station3', -1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">-</button>
+              <input type="number" id="adminCall3" class="w-14 border-2 border-dusty-dark rounded-lg text-center py-1 font-black" value="0">
+              <button onclick="adjustStation('station3', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
+            </div>
+          </div>
 
+          <button onclick="saveAllStations()" class="hand-btn w-full bg-dusty-mintText text-white py-2 mt-1">📡 廣播同步三站號碼</button>
+        </div>
         <!-- 📢 推送現場廣播控制區 -->
         <div class="bg-dusty-yellow/60 p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
           <label class="block text-dusty-yellowText">📢 推送現場即時廣播公告：</label>
           <input type="text" id="adminBroadcastInput" placeholder="例如：上午場即將額滿，請加快報到" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold">
           <button onclick="sendBroadcast()" class="hand-btn w-full bg-dusty-yellow text-dusty-yellowText py-1.5">發布廣播至全場手機</button>
         </div>
-
-        <!-- 雲端報到名冊 -->
+        <!-- 雲端報到名冊（顯示最近 5 個號碼與人名） -->
         <div class="space-y-1">
           <div class="flex justify-between items-center">
-            <span class="text-xs font-bold">雲端報到名冊 (<span id="totalCheckinCount">0</span> 人)</span>
+            <span class="text-xs font-bold">雲端報到名冊 (總計 <span id="totalCheckinCount">0</span> 人，最近5筆)</span>
             <button onclick="exportCSV('registry')" class="text-[10px] bg-dusty-pink text-white px-2 py-0.5 rounded font-bold">下載 CSV</button>
           </div>
-          <div class="bg-slate-50 border-2 border-dusty-dark rounded-xl p-2 max-h-24 overflow-y-auto text-[10px]">
+          <div class="bg-slate-50 border-2 border-dusty-dark rounded-xl p-2 max-h-32 overflow-y-auto text-[10px]">
             <table class="w-full text-left"><tbody id="registryList"><tr><td class="text-gray-400">尚無資料</td></tr></tbody></table>
           </div>
         </div>
-
         <!-- 雲端問卷回饋 -->
         <div class="space-y-1 pt-2 border-t border-slate-200">
           <div class="flex justify-between items-center">
@@ -434,11 +436,9 @@
             <p class="text-gray-400 text-center">尚無問卷資料</p>
           </div>
         </div>
-
       </div>
     </div>
   </div>
-
   <script>
     window.updateUI = function() {
       document.getElementById('callStation1').innerText = String(window.state.station1 || 0).padStart(3, '0');
@@ -447,6 +447,9 @@
       document.getElementById('lastUpdatedDisplay').innerText = window.state.lastUpdated || '--:--';
       document.getElementById('broadcastText').innerText = window.state.broadcastMsg || '';
       
+      const regCount = (window.state.registry || []).length;
+      document.getElementById('publicCheckinCount').innerText = regCount;
+
       if (document.getElementById('adminCall1')) {
         document.getElementById('adminCall1').value = window.state.station1 || 0;
         document.getElementById('adminCall2').value = window.state.station2 || 0;
@@ -458,13 +461,19 @@
       renderRegistry();
       renderSurveys();
     };
-
     function toggleRoleModal() { document.getElementById('roleModal').classList.toggle('hidden'); }
     function verifyPin() {
       if (document.getElementById('pinInput').value === '8888') {
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('controlBox').classList.remove('hidden');
       } else { alert("PIN 碼錯誤！"); }
+    }
+    // 快速增減按鈕邏輯 (+/-)
+    function adjustStation(stationKey, delta) {
+      const inputEl = document.getElementById(stationKey === 'station1' ? 'adminCall1' : stationKey === 'station2' ? 'adminCall2' : 'adminCall3');
+      let val = parseInt(inputEl.value) || 0;
+      val = Math.max(0, val + delta);
+      inputEl.value = val;
     }
 
     function saveAllStations() {
@@ -474,7 +483,6 @@
       window.syncState();
       alert("三站號碼已同步至全場！");
     }
-
     // 發布廣播至雲端
     function sendBroadcast() {
       const msg = document.getElementById('adminBroadcastInput').value.trim();
@@ -483,23 +491,19 @@
       window.syncState();
       alert("📢 現場廣播已秒速推播至全場 150 人手機！");
     }
-
     // 民眾自助報到
     function submitCloudCheckin() {
       const name = document.getElementById('checkinName').value.trim();
       const id5 = document.getElementById('checkinId').value.trim();
       const temp = document.getElementById('checkinTemp').value.trim();
       if (!name || !id5 || !temp) { alert("請完整填寫報到資料！"); return; }
-
       if (!window.state.lastTicketNum) window.state.lastTicketNum = 0;
       window.state.lastTicketNum++;
       const ticket = String(window.state.lastTicketNum).padStart(3, '0');
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
       if (!window.state.registry) window.state.registry = [];
       window.state.registry.unshift({ name, id: id5, temp, ticket, time });
       window.syncState();
-
       document.getElementById('myTicketNum').textContent = ticket;
       document.getElementById('myTicketName').textContent = `${name} 報到成功！`;
       document.getElementById('myTicketBox').classList.remove('hidden');
@@ -508,7 +512,6 @@
       document.getElementById('checkinTemp').value = '';
       if (typeof confetti === 'function') confetti({ particleCount: 50 });
     }
-
     // 衛教問答邏輯
     const quizList = [
       { q: "1. 打完流感疫苗就不會得到普通感冒了嗎？", opts: [{ t: "⭕ 對，完全免疫", c: false }, { t: "❌ 錯，流感與一般感冒不同", c: true }], exp: "流感疫苗主要預防重症流感，對一般感冒病毒無效喔。" },
@@ -556,7 +559,6 @@
         if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70 });
       }
     }
-
     // 星星互動（支援 5 題）
     const starLabels = { 1: "1分 (需改善)", 2: "2分 (尚可)", 3: "3分 (普通)", 4: "4分 (滿意)", 5: "5分 (非常滿意)" };
     function setStar(qName, score) {
@@ -568,7 +570,6 @@
       const labelEl = document.querySelector(`.${qName}-label`);
       if (labelEl) labelEl.innerText = starLabels[score];
     }
-
     // 提交完整 5 題雲端問卷
     function submitCloudSurvey(e) {
       e.preventDefault();
@@ -581,27 +582,25 @@
         q6: document.getElementById('q6Comment').value.trim() || '無',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-
       if (!window.state.surveys) window.state.surveys = [];
       window.state.surveys.unshift(res);
       window.syncState();
-
       document.getElementById('surveyForm').reset();
       ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
-
       document.getElementById('surveySuccessMsg').classList.remove('hidden');
       if (typeof confetti === 'function') confetti({ particleCount: 80 });
       setTimeout(() => { document.getElementById('surveySuccessMsg').classList.add('hidden'); }, 4000);
     }
-
     function renderRegistry() {
       const tbody = document.getElementById('registryList');
       const reg = window.state.registry || [];
       document.getElementById('totalCheckinCount').textContent = reg.length;
       if (reg.length === 0) { tbody.innerHTML = `<tr><td class="text-gray-400">尚無資料</td></tr>`; return; }
-      tbody.innerHTML = reg.map(r => `<tr class="border-b"><td><b>${r.ticket}</b></td><td>${r.name}</td><td>${r.temp}°C</td><td class="text-right">${r.time}</td></tr>`).join('');
+      
+      // 顯示最近 5 個號碼與人名
+      const recentReg = reg.slice(0, 5);
+      tbody.innerHTML = recentReg.map(r => `<tr class="border-b"><td><b>${r.ticket}</b></td><td>${r.name}</td><td>${r.temp}°C</td><td class="text-right">${r.time}</td></tr>`).join('');
     }
-
     function renderSurveys() {
       const box = document.getElementById('surveyRecordList');
       const surveys = window.state.surveys || [];
@@ -617,7 +616,6 @@
         </div>
       `).join('');
     }
-
     function exportCSV(type) {
       const data = type === 'registry' ? (window.state.registry || []) : (window.state.surveys || []);
       if (data.length === 0) { alert("目前尚無資料可下載！"); return; }
@@ -636,7 +634,6 @@
       a.download = `${type === 'registry' ? '報到名冊' : '問卷回饋'}_${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
     }
-
     function switchTab(key) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold");
@@ -648,28 +645,29 @@
       if (key === 'quiz') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-purple border-2 border-dusty-dark text-dusty-purpleText font-bold shadow-[2px_2px_0px_#3D3435]";
       if (key === 'survey') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-cream border-2 border-dusty-dark text-dusty-dark font-bold shadow-[2px_2px_0px_#3D3435]";
     }
-
+    // 依據「每看 1~2 位正常號，插入 1 位過號」規則計算預估進度
     function checkQueueStatus() {
       const myNum = parseInt(document.getElementById('myNumberInput').value);
       const res = document.getElementById('queueResult');
-      if (!myNum || isNaN(myNum)) return;
+      if (!myNum || isNaN(myNum)) { alert("請輸入有效的號碼！"); return; }
       res.classList.remove('hidden');
-      if (myNum <= window.state.station3) {
-        res.className = "p-2 rounded-xl text-xs font-bold text-center bg-slate-200 text-slate-700 border-2 border-dusty-dark block";
-        res.innerText = "您的號碼已完成注射或已過號。";
-      } else if (myNum <= window.state.station2) {
-        res.className = "p-2 rounded-xl text-xs font-bold text-center bg-dusty-mint text-dusty-mintText border-2 border-dusty-dark block";
-        res.innerText = "💉 請前往【3. 注射診間】準備接種！";
-      } else if (myNum <= window.state.station1) {
-        res.className = "p-2 rounded-xl text-xs font-bold text-center bg-dusty-yellow text-dusty-dark border-2 border-dusty-dark block";
-        res.innerText = "🩺 請前往【2. 醫師問診區】等候評估！";
+      
+      const currentCall = window.state.station1; // 以第1站掛號/問診叫號基準為主
+      if (myNum <= currentCall) {
+        res.className = "p-2.5 rounded-xl text-xs font-bold text-center bg-slate-200 text-slate-700 border-2 border-dusty-dark block";
+        res.innerHTML = `您的號碼 (${String(myNum).padStart(3,'0')}) 已通過或完成叫號。`;
       } else {
-        const diff = myNum - window.state.station1;
-        res.className = "p-2 rounded-xl text-xs font-bold text-center bg-white text-slate-700 border-2 border-dusty-dark block";
-        res.innerText = `尚未叫號，目前第1站進度為 ${window.state.station1} 號，您還需等候約 ${diff} 人。`;
+        const diff = myNum - currentCall;
+        // 規則套用：每 2 個正常號插 1 個過號，粗估等待順位往後推估
+        const estimatedCallNum = myNum + Math.floor(diff / 2);
+        res.className = "p-2.5 rounded-xl text-xs font-bold text-center bg-white text-slate-700 border-2 border-dusty-dark block space-y-1";
+        res.innerHTML = `
+          <div>目前第 1 站叫到：<b>${String(currentCall).padStart(3,'0')}</b> 號</div>
+          <div class="text-dusty-pink">依「每看 2 位正常號插入 1 位過號」規則推估：</div>
+          <div class="text-[11px] text-slate-600">您大約會被安排在約 <b>${String(estimatedCallNum).padStart(3,'0')} 號</b> 左右進去看診，還要再等候約 ${diff} 位。</div>
+        `;
       }
     }
-
     window.onload = function() {
       renderQuiz();
       ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
