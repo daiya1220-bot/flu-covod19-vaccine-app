@@ -63,8 +63,8 @@
     // 3. 🧹 完全重置所有資料（歸零）
     window.resetAllData = function() {
       if (confirm("⚠️ 確定要【清空所有資料】並歸零重來嗎？\n此操作將刪除：\n1. 三站所有叫號\n2. 雲端報到總名冊\n3. 過號登記紀錄\n4. 所有問卷回饋紀錄\n\n動作無法復原！")) {
-        const doubleCheck = prompt("為避免誤觸，請輸入數字 8888 以確認完全重置：");
-        if (doubleCheck === '8888') {
+        const doubleCheck = prompt("為避免誤觸，請輸入Daiya生日 以確認完全重置：");
+        if (doubleCheck === '1220') {
           window.state = {
             station1: "000",
             station2: "000",
@@ -187,10 +187,10 @@
           <p class="text-[10px] text-center text-slate-400 font-bold">最後同步：<span id="lastUpdatedDisplay">--:--</span></p>
         </div>
 
-        <!-- 自助報到 -->
+        <!-- 報到 -->
         <div class="hand-card bg-dusty-cream p-4 space-y-3">
           <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
-            <span class="text-base">📋</span> 民眾自主報到取號
+            <span class="text-base">📋</span> 報到取號
           </h3>
           <div class="space-y-2">
             <div>
@@ -491,8 +491,8 @@
 
         <!-- 📢 廣播控制區 -->
         <div class="bg-dusty-yellow/60 p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
-          <label class="block text-dusty-yellowText">📢 推送現場即時廣播公告：</label>
-          <input type="text" id="adminBroadcastInput" placeholder="例如：上午場即將額滿，請加快報到" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold">
+          <label class="block text-dusty-yellowText">📢 推送現場即時公告：</label>
+          <input type="text" id="adminBroadcastInput" placeholder="例如：即將額滿，請加快報到" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold">
           <button onclick="sendBroadcast()" class="hand-btn w-full bg-dusty-yellow text-dusty-yellowText py-1.5">發布廣播至全場手機</button>
         </div>
 
@@ -659,7 +659,7 @@
       alert("📢 現場廣播已秒速推播至全場手機！");
     }
 
-    // 民眾自主報到
+    // 報到
     function submitCloudCheckin() {
       const name = document.getElementById('checkinName').value.trim();
       const id5 = document.getElementById('checkinId').value.trim();
