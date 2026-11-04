@@ -385,7 +385,41 @@
       
       ['station1', 'station2', 'station3'].forEach((sKey, idx) => {
         const st = window.state.stations[sKey];
-        document.getElementById(`callStation${idx+1}`).innerText = st.current; });  document.getElementById('lastUpdatedDisplay').innerText = window.state.lastUpdated \vert{}\vert{} '--:--'; document.getElementById('broadcastText').innerText = window.state.broadcastMsg \vert{}\vert{} ''; document.getElementById('publicCheckinCount').innerText = (window.state.registry \vert{}\vert{} []).length;  if (document.getElementById('adminBroadcastInput') && document.getElementById('adminBroadcastInput').value === '') { document.getElementById('adminBroadcastInput').value = window.state.broadcastMsg \vert{}\vert{} ''; }  renderPublicUpcoming(); renderRegistry(); if (!document.getElementById('roleModal').classList.contains('hidden')) { renderAdminStationPanel(); } };  function toggleRoleModal() { document.getElementById('roleModal').classList.toggle('hidden'); if(!document.getElementById('roleModal').classList.contains('hidden')) renderAdminStationPanel(); }  function verifyPin() { if (document.getElementById('pinInput').value === '8888') { document.getElementById('authBox').classList.add('hidden'); document.getElementById('controlBox').classList.remove('hidden'); renderAdminStationPanel(); } else { alert("PIN 碼錯誤！"); } }  function switchAdminTab(stationKey) { currentAdminStation = stationKey; ['station1', 'station2', 'station3'].forEach((k, idx) => { const btn = document.getElementById(`adm-tab-${idx+1}`);
+        document.getElementById(`callStation${idx+1}`).innerText = st.current;
+      });
+
+      document.getElementById('lastUpdatedDisplay').innerText = window.state.lastUpdated || '--:--';
+      document.getElementById('broadcastText').innerText = window.state.broadcastMsg || '';
+      document.getElementById('publicCheckinCount').innerText = (window.state.registry || []).length;
+      
+      if (document.getElementById('adminBroadcastInput') && document.getElementById('adminBroadcastInput').value === '') {
+        document.getElementById('adminBroadcastInput').value = window.state.broadcastMsg || '';
+      }
+
+      renderPublicUpcoming();
+      renderRegistry();
+      if (!document.getElementById('roleModal').classList.contains('hidden')) {
+        renderAdminStationPanel();
+      }
+    };
+
+    function toggleRoleModal() { 
+      document.getElementById('roleModal').classList.toggle('hidden'); 
+      if(!document.getElementById('roleModal').classList.contains('hidden')) renderAdminStationPanel(); 
+    }
+    
+    function verifyPin() {
+      if (document.getElementById('pinInput').value === '8888') {
+        document.getElementById('authBox').classList.add('hidden');
+        document.getElementById('controlBox').classList.remove('hidden');
+        renderAdminStationPanel();
+      } else { alert("PIN 碼錯誤！"); }
+    }
+
+    function switchAdminTab(stationKey) {
+      currentAdminStation = stationKey;
+      ['station1', 'station2', 'station3'].forEach((k, idx) => {
+        const btn = document.getElementById(`adm-tab-${idx+1}`);
         btn.className = (k === stationKey) ? 
           "flex-1 py-1.5 rounded-lg bg-white border border-dusty-dark shadow-sm font-bold text-dusty-dark" : 
           "flex-1 py-1.5 rounded-lg text-slate-500 font-bold";
@@ -438,11 +472,12 @@
               <div class="flex items-center gap-1.5 overflow-hidden">
                 <span class="text-slate-400">☰</span>
                 <span class="font-black ${item.isOverdue ? 'text-amber-800' : 'text-dusty-dark'}">${displayLabel}</span>
-                <span class="text-[10px] text-slate-600 truncate">(${item.name})</span>${!isEligible ? `<span class="bg-rose-100 text-rose-800 border border-rose-300 text-[9px] px-1 rounded font-black shrink-0">⛔ 未完成前一關</span>` : ''}
+                <span class="text-[10px] text-slate-600 truncate">(${item.name})</span>
+                ${!isEligible ? `<span class="bg-rose-100 text-rose-800 border border-rose-300 text-[9px] px-1 rounded font-black shrink-0">⛔ 未完成前一關</span>` : ''}
               </div>
               <div class="flex gap-1 shrink-0">
                 ${!item.isOverdue ? `<button onclick="markOverdue('${currentAdminStation}', ${idx})" class="bg-amber-500 text-white px-1.5 py-0.5 rounded text-[9px]">過號</button>` : ''}
-                <button onclick="removeFromQueue('${currentAdminStation}',${idx})" class="bg-rose-500 text-white px-1.5 py-0.5 rounded text-[9px]">刪除</button>
+                <button onclick="removeFromQueue('${currentAdminStation}', ${idx})" class="bg-rose-500 text-white px-1.5 py-0.5 rounded text-[9px]">刪除</button>
               </div>
             </div>
           `;
@@ -480,7 +515,31 @@
       // 🛡️ 防呆驗證：判斷是否完成了前一關！
       if (!canBeCalled(nextItem.ticketNumber, stationKey)) {
         const prevStationName = stationKey === 'station2' ? '1. 掛號櫃台' : '2. 醫師問診';
-        alert(`⛔ 【流程防呆擋截】\n\n號碼 ${nextItem.ticketNumber}號 (${nextItem.name}) 尚未完成「${prevStationName}」！\n即使將其拖拉至第一位，系統仍禁止叫號。請先完成前一關卡。`); return; }  // 驗證通過，正式叫號並移除該佇列項目 st.queue.shift(); st.current = nextItem.isOverdue ? `${nextItem.ticketNumber}號（過號）` : `${nextItem.ticketNumber}號`;  // 更新民眾個人完成歷程 const regPerson = (window.state.registry \vert{}\vert{} []).find(r => r.ticket === nextItem.ticketNumber); if (regPerson) { if (!regPerson.history) regPerson.history = []; if (!regPerson.history.includes(stationKey)) { regPerson.history.push(stationKey); }  // 自動將該民眾加入下一關的候診隊列（三關依序解鎖） if (stationKey === 'station1' && !window.state.stations.station2.queue.some(q => q.ticketNumber === nextItem.ticketNumber)) { window.state.stations.station2.queue.push({ ticketNumber: nextItem.ticketNumber, name: nextItem.name, isOverdue: false }); } else if (stationKey === 'station2' && !window.state.stations.station3.queue.some(q => q.ticketNumber === nextItem.ticketNumber)) { window.state.stations.station3.queue.push({ ticketNumber: nextItem.ticketNumber, name: nextItem.name, isOverdue: false }); } }  window.state.broadcastMsg = `📢 請 ${st.name} 叫號：請 ${st.current} (${nextItem.name}) 前往看診！`;
+        alert(`⛔ 【流程防呆擋截】\n\n號碼 ${nextItem.ticketNumber}號 (${nextItem.name}) 尚未完成「${prevStationName}」！\n即使將其拖拉至第一位，系統仍禁止叫號。請先完成前一關卡。`);
+        return;
+      }
+
+      // 驗證通過，正式叫號並移除該佇列項目
+      st.queue.shift();
+      st.current = nextItem.isOverdue ? `${nextItem.ticketNumber}號（過號）` : `${nextItem.ticketNumber}號`;
+      
+      // 更新民眾個人完成歷程
+      const regPerson = (window.state.registry || []).find(r => r.ticket === nextItem.ticketNumber);
+      if (regPerson) {
+        if (!regPerson.history) regPerson.history = [];
+        if (!regPerson.history.includes(stationKey)) {
+          regPerson.history.push(stationKey);
+        }
+
+        // 自動將該民眾加入下一關的候診隊列（三關依序解鎖）
+        if (stationKey === 'station1' && !window.state.stations.station2.queue.some(q => q.ticketNumber === nextItem.ticketNumber)) {
+          window.state.stations.station2.queue.push({ ticketNumber: nextItem.ticketNumber, name: nextItem.name, isOverdue: false });
+        } else if (stationKey === 'station2' && !window.state.stations.station3.queue.some(q => q.ticketNumber === nextItem.ticketNumber)) {
+          window.state.stations.station3.queue.push({ ticketNumber: nextItem.ticketNumber, name: nextItem.name, isOverdue: false });
+        }
+      }
+
+      window.state.broadcastMsg = `📢 請 ${st.name} 叫號：請 ${st.current} (${nextItem.name}) 前往看診！`;
       window.syncState();
       renderAdminStationPanel();
     }
@@ -516,4 +575,222 @@
             <div class="flex justify-between font-bold text-xs text-dusty-dark border-b border-dusty-dark/10 pb-1">
               <span>📍 ${st.name} <span class="text-[10px] text-slate-500">(目前看診: <b class="text-rose-600">${st.current}</b>)</span></span>
             </div>
-            <div class="flex gap-1.5 pt-1 overflow-x-auto no-scrollbar
+            <div class="flex gap-1.5 pt-1 overflow-x-auto no-scrollbar">
+        `;
+
+        if (nextThree.length === 0) {
+          html += `<span class="text-[10px] text-gray-400">目前無候診隊列</span>`;
+        } else {
+          nextThree.forEach((item, idx) => {
+            const label = item.isOverdue ? `${item.ticketNumber}號（過號）` : `${item.ticketNumber}號`;
+            html += `
+              <div class="bg-white px-2 py-1 rounded border border-dusty-dark text-[10px] font-bold shrink-0">
+                順位${idx+1}: <span class="${item.isOverdue ? 'text-amber-700' : 'text-dusty-dark'}">${label}</span> (${item.name})
+              </div>
+            `;
+          });
+        }
+        html += `</div></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function sendBroadcast() {
+      const msg = document.getElementById('adminBroadcastInput').value.trim();
+      if (!msg) { alert("請輸入廣播內容！"); return; }
+      window.state.broadcastMsg = msg;
+      window.syncState();
+      alert("📢 廣播已同步！");
+    }
+
+    // 民眾自主報到：自動帶入第 1 站（掛號櫃台）
+    function submitCloudCheckin() {
+      const name = document.getElementById('checkinName').value.trim();
+      const id5 = document.getElementById('checkinId').value.trim();
+      const temp = document.getElementById('checkinTemp').value.trim();
+      if (!name || !id5 || !temp) { alert("請完整填寫報到資料！"); return; }
+      
+      if (!window.state.lastTicketNum) window.state.lastTicketNum = 0;
+      window.state.lastTicketNum++;
+      const ticketNum = String(window.state.lastTicketNum).padStart(3, '0');
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      if (!window.state.registry) window.state.registry = [];
+      window.state.registry.unshift({ name, id: id5, temp, ticket: ticketNum, time, history: [] });
+
+      // 自動加入第 1 站佇列
+      if (!window.state.stations.station1.queue) window.state.stations.station1.queue = [];
+      window.state.stations.station1.queue.push({
+        ticketNumber: ticketNum,
+        name: name,
+        isOverdue: false
+      });
+
+      window.syncState();
+      document.getElementById('myTicketNum').textContent = ticketNum;
+      document.getElementById('myTicketName').textContent = `${name} 報到成功！`;
+      document.getElementById('myTicketBox').classList.remove('hidden');
+      document.getElementById('checkinName').value = '';
+      document.getElementById('checkinId').value = '';
+      document.getElementById('checkinTemp').value = '';
+      if (typeof confetti === 'function') confetti({ particleCount: 50 });
+    }
+
+    // 渲染全場名冊與過關狀態
+    function renderRegistry() {
+      const tbody = document.getElementById('registryList');
+      const reg = window.state.registry || [];
+      document.getElementById('totalCheckinCount').textContent = reg.length;
+      if (reg.length === 0) { tbody.innerHTML = `<tr><td class="text-gray-400">尚無資料</td></tr>`; return; }
+      
+      tbody.innerHTML = reg.map(r => {
+        const h = r.history || [];
+        const statusStr = h.length === 3 ? '✅ 已完成全流程' : h.length === 2 ? '💉 待疫苗接種' : h.length === 1 ? '🩺 待醫師問診' : '📋 待掛號';
+        return `
+          <tr class="border-b text-[10px]">
+            <td class="py-1 font-bold"><b>${r.ticket}號</b></td>
+            <td>${r.name}</td>
+            <td class="text-emerald-700 font-bold">${statusStr}</td>
+            <td class="text-right">
+              <button onclick="manualAddToStation('${r.ticket}', '${r.name}', 'station2')" class="bg-amber-100 text-amber-900 border border-amber-300 px-1 py-0.5 rounded text-[9px] font-bold">手動加問診</button>
+              <button onclick="manualAddToStation('${r.ticket}', '${r.name}', 'station3')" class="bg-emerald-100 text-emerald-900 border border-emerald-300 px-1 py-0.5 rounded text-[9px] font-bold">手動加打針</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 後台手動將民眾加至某站（如手動插入時，給予解鎖狀態提醒）
+    function manualAddToStation(ticketNum, name, stationKey) {
+      const st = window.state.stations[stationKey];
+      if (!st.queue) st.queue = [];
+      if (st.queue.some(q => q.ticketNumber === ticketNum)) {
+        alert(`號碼 ${ticketNum}號 已在該關卡佇列中！`);
+        return;
+      }
+      st.queue.push({ ticketNumber: ticketNum, name, isOverdue: false });
+      window.syncState();
+      alert(`已將 ${ticketNum}號 (${name}) 加入 ${st.name} 佇列！`);
+    }
+
+    function exportCSV() {
+      const data = window.state.registry || [];
+      if (data.length === 0) { alert("目前無資料"); return; }
+      let csv = "\uFEFF號碼,姓名,體溫,完成歷程,時間\n";
+      data.forEach(r => csv += `"${r.ticket}","${r.name}","${r.temp}","${(r.history||[]).join('->')}","${r.time}"\n`);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `疫苗接種總名冊_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    function switchTab(key) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold");
+      document.getElementById(`tab-${key}`).classList.remove('hidden');
+    }
+
+    function checkQueueStatus() {
+      const val = document.getElementById('myNumberInput').value.trim();
+      const res = document.getElementById('queueResult');
+      if (!val) { alert("請輸入號碼"); return; }
+      res.classList.remove('hidden');
+      
+      const person = (window.state.registry || []).find(r => r.ticket === val || r.ticket === String(val).padStart(3,'0'));
+      if (!person) {
+        res.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-50 text-rose-800 border-2 border-dusty-dark block";
+        res.innerText = `❌ 查無號碼 ${val} 的報到紀錄，請先進行報到。`;
+        return;
+      }
+
+      const h = person.history || [];
+      let currentStage = h.length === 3 ? "🎉 已完成全部關卡" : h.length === 2 ? "3. 疫苗接種" : h.length === 1 ? "2. 醫師問診" : "1. 掛號櫃台";
+      
+      res.className = "p-3 rounded-xl text-xs font-bold text-left bg-emerald-50 text-emerald-900 border-2 border-dusty-dark block space-y-1";
+      res.innerHTML = `
+        <div class="font-black text-sm">✅ 號碼：${person.ticket}號 (${person.name})</div>
+        <div>目前所在進度關卡：<b class="text-dusty-pink font-black">${currentStage}</b></div>
+        <div class="text-[10px] text-slate-500 mt-1">📌 提示：請依照看板關注該關卡的即時叫號。</div>
+      `;
+    }
+
+    const quizList = [
+      { q: "1. 打完流感疫苗就不會得到普通感冒了嗎？", opts: [{ t: "⭕ 對，完全免疫", c: false }, { t: "❌ 錯，流感與一般感冒不同", c: true }], exp: "流感疫苗主要預防重症流感，對一般感冒病毒無效喔。" },
+      { q: "2. 打完針之後，注射部位需要大力揉搓嗎？", opts: [{ t: "⭕ 需要用力揉促進吸收", c: false }, { t: "❌ 切勿用力揉，輕壓即可", c: true }], exp: "打完針後只需輕壓即可，用力揉容易造成區域皮下微血管破裂。" },
+      { q: "3. 打完疫苗需要在現場留觀多久？", opts: [{ t: "A. 打完立刻離開", c: false }, { t: "B. 原地休息 15~30 分鐘", c: true }], exp: "留觀 15~30 分鐘可確保若有過敏反應能即時獲得醫護協助。" }
+    ];
+    let quizIdx = 0;
+    function renderQuiz() {
+      const q = quizList[quizIdx];
+      document.getElementById('quizProgress').innerText = `題目 ${quizIdx + 1} / ${quizList.length}`;
+      document.getElementById('quizQuestionTitle').innerText = q.q;
+      const box = document.getElementById('quizOptionsBox');
+      box.innerHTML = '';
+      q.opts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = "hand-btn w-full text-left p-3 bg-white text-xs font-bold text-dusty-dark hover:bg-dusty-purple/30 transition";
+        btn.innerText = opt.t;
+        btn.onclick = () => selectQuizOpt(opt, btn);
+        box.appendChild(btn);
+      });
+      document.getElementById('quizFeedbackBox').classList.add('hidden');
+      document.getElementById('nextQuizBtn').classList.add('hidden');
+    }
+    function selectQuizOpt(opt, btn) {
+      const fb = document.getElementById('quizFeedbackBox');
+      fb.classList.remove('hidden');
+      if (opt.c) {
+        btn.className = "hand-btn w-full text-left p-3 bg-emerald-100 text-xs font-bold text-emerald-900";
+        fb.className = "p-3 rounded-2xl text-xs bg-emerald-100 text-emerald-900 font-bold block border-2 border-dusty-dark";
+        fb.innerText = `🎉 答對了！${quizList[quizIdx].exp}`;
+      } else {
+        btn.className = "hand-btn w-full text-left p-3 bg-rose-100 text-xs font-bold text-rose-900";
+        fb.className = "p-3 rounded-2xl text-xs bg-rose-100 text-rose-900 font-bold block border-2 border-dusty-dark";
+        fb.innerText = `❌ 唉呀！差一點點！${quizList[quizIdx].exp}`;
+      }
+      document.getElementById('nextQuizBtn').classList.remove('hidden');
+    }
+    function nextQuizQuestion() {
+      quizIdx++;
+      if (quizIdx < quizList.length) {
+        renderQuiz();
+      } else {
+        document.getElementById('quizContainerBox').classList.add('hidden');
+        document.getElementById('heroBadgeCard').classList.remove('hidden');
+        if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70 });
+      }
+    }
+
+    const starLabels = { 1: "1分", 2: "2分", 3: "3分", 4: "4分", 5: "5分" };
+    function setStar(qName, score) {
+      document.getElementById(`val-${qName}`).value = score;
+      const group = document.querySelector(`.star-group[data-name="${qName}"]`);
+      group.querySelectorAll('i').forEach((star, idx) => {
+        star.className = idx < score ? "fa-solid fa-star cursor-pointer" : "fa-regular fa-star cursor-pointer text-slate-300";
+      });
+      const labelEl = document.querySelector(`.${qName}-label`);
+      if (labelEl) labelEl.innerText = starLabels[score];
+    }
+    function submitCloudSurvey(e) {
+      e.preventDefault();
+      const res = {
+        q1: document.getElementById('val-q1').value,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      if (!window.state.surveys) window.state.surveys = [];
+      window.state.surveys.unshift(res);
+      window.syncState();
+      document.getElementById('surveyForm').reset();
+      document.getElementById('surveySuccessMsg').classList.remove('hidden');
+      if (typeof confetti === 'function') confetti({ particleCount: 80 });
+      setTimeout(() => { document.getElementById('surveySuccessMsg').classList.add('hidden'); }, 4000);
+    }
+
+    window.onload = function() {
+      renderQuiz();
+    };
+  </script>
+</body>
+</html>
