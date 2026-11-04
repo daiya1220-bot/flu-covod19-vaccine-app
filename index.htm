@@ -252,7 +252,7 @@
         </div>
       </section>
 
-      <!-- TAB 4: 完整 5 星滿意度雲端問卷 -->
+      <!-- TAB 4: 滿意度問卷 (含選填姓名欄位) -->
       <section id="tab-survey" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-dusty-cream p-5 space-y-4">
           <h2 class="text-sm font-bold text-dusty-dark flex items-center gap-1.5">
@@ -260,6 +260,13 @@
           </h2>
           <p class="text-[11px] text-slate-600 font-bold">感謝您參與本次接種活動，請點選星星為各項服務評分：</p>
           <form id="surveyForm" onsubmit="submitCloudSurvey(event)" class="space-y-3 text-xs font-bold">
+            
+            <!-- 👤 選填姓名問題 -->
+            <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
+              <label class="block text-dusty-dark font-bold">填寫人姓名 / 單位（選填，不願具名可不填）：</label>
+              <input type="text" id="surveyName" placeholder="例如：王大明 或 環安室張小姐 (未填將以匿名送出)" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
+            </div>
+
             <!-- Q1 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">1. 接種流程動線與現場等待時間</p>
@@ -275,6 +282,7 @@
               </div>
               <input type="hidden" id="val-q1" value="5">
             </div>
+
             <!-- Q2 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">2. 場地環境舒適度與指標清晰度</p>
@@ -290,6 +298,7 @@
               </div>
               <input type="hidden" id="val-q2" value="5">
             </div>
+
             <!-- Q3 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">3. 現場醫護與工作人員服務態度</p>
@@ -305,6 +314,7 @@
               </div>
               <input type="hidden" id="val-q3" value="5">
             </div>
+
             <!-- Q4 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">4. 接種前衛教與注意事項說明清晰度</p>
@@ -320,6 +330,7 @@
               </div>
               <input type="hidden" id="val-q4" value="5">
             </div>
+
             <!-- Q5 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">5. 本次流感疫苗接種活動綜合評價</p>
@@ -335,6 +346,7 @@
               </div>
               <input type="hidden" id="val-q5" value="5">
             </div>
+
             <!-- Q6 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">6. 您對於未來辦理疫苗接種活動的寶貴建議或心得（選填）：</p>
@@ -527,7 +539,7 @@
       if (document.getElementById('pinInput').value === '8888') {
         document.getElementById('authBox').classList.add('hidden');
         document.getElementById('controlBox').classList.remove('hidden');
-      } else { alert("PIN 碼錯誤！"); }
+      } else { alert("PIN 码錯誤！"); }
     }
 
     // 🛡️ 叫號順序防呆判斷（第3站 <= 第2站 <= 第1站）
@@ -690,9 +702,12 @@
       if (labelEl) labelEl.innerText = starLabels[score];
     }
 
+    // 提交滿意度問卷（包含選填姓名）
     function submitCloudSurvey(e) {
       e.preventDefault();
+      const nameVal = document.getElementById('surveyName').value.trim() || '匿名';
       const res = {
+        name: nameVal,
         q1: document.getElementById('val-q1').value,
         q2: document.getElementById('val-q2').value,
         q3: document.getElementById('val-q3').value,
@@ -705,6 +720,7 @@
       window.state.surveys.unshift(res);
       window.syncState();
       document.getElementById('surveyForm').reset();
+      document.getElementById('surveyName').value = '';
       ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
       document.getElementById('surveySuccessMsg').classList.remove('hidden');
       if (typeof confetti === 'function') confetti({ particleCount: 80 });
@@ -729,7 +745,7 @@
       box.innerHTML = surveys.map(s => `
         <div class="border-b pb-1 mb-1">
           <div class="flex justify-between font-bold text-slate-700">
-            <span>綜合評分: ${s.q5}★</span><span class="text-gray-400">${s.time}</span>
+            <span>填寫者: ${s.name || '匿名'} (評分: ${s.q5}★)</span><span class="text-gray-400">${s.time}</span>
           </div>
           <p class="text-gray-500 text-[9px]">[動線:${s.q1} | 環境:${s.q2} | 態度:${s.q3} | 衛教:${s.q4}]</p>
           <p class="text-gray-600 bg-white p-1 rounded mt-0.5">建議: ${s.q6}</p>
@@ -745,8 +761,8 @@
         csv += "號碼,姓名,身分證5碼,體溫,時間\n";
         data.forEach(r => csv += `"${r.ticket}","${r.name}","${r.id}","${r.temp}","${r.time}"\n`);
       } else {
-        csv += "填寫時間,Q1動線,Q2環境,Q3態度,Q4衛教,Q5綜合評價,Q6建議心得\n";
-        data.forEach(s => csv += `"${s.time}","${s.q1}","${s.q2}","${s.q3}","${s.q4}","${s.q5}","${s.q6.replace(/"/g, '""')}"\n`);
+        csv += "填寫者姓名,填寫時間,Q1動線,Q2環境,Q3態度,Q4衛教,Q5綜合評價,Q6建議心得\n";
+        data.forEach(s => csv += `"${s.name || '匿名'}","${s.time}","${s.q1}","${s.q2}","${s.q3}","${s.q4}","${s.q5}","${(s.q6 || '').replace(/"/g, '""')}"\n`);
       }
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
