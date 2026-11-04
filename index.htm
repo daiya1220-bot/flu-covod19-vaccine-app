@@ -87,16 +87,18 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
-    /* 解決手機鍵盤彈起時遮擋輸入框的問題 */
-    .keyboard-open #bottom-nav {
-      position: absolute !important;
-      bottom: -999px !important;
-      display: none !important;
+    /* 鍵盤彈起時，底部導覽列滑出畫面下方，並增加外層容器底部間距確保內容可視 */
+    body.keyboard-open #bottom-nav {
+      transform: translateY(120%) !important;
+      pointer-events: none;
+    }
+    body.keyboard-open .app-container {
+      padding-bottom: 20px !important;
     }
   </style>
 </head>
 <body class="h-full antialiased font-sans flex flex-col justify-between select-none">
-  <div class="max-w-md mx-auto w-full min-h-screen flex flex-col bg-dusty-pinkBg/30 border-x-2 border-dusty-dark shadow-2xl relative pb-28">
+  <div class="app-container max-w-md mx-auto w-full min-h-screen flex flex-col bg-dusty-pinkBg/30 border-x-2 border-dusty-dark shadow-2xl relative pb-28 transition-all duration-200">
     
     <!-- 頂部 Header -->
     <header class="bg-white p-4 sticky top-0 z-30 border-b-2 border-dusty-dark flex justify-between items-center">
@@ -335,7 +337,7 @@
       </section>
     </main>
     <!-- 底部導覽列（含手繪可愛動物圖示與動態避開軟鍵盤處理） -->
-    <nav id="bottom-nav" class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-35 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1 transition-all duration-200">
+    <nav id="bottom-nav" class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-35 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1 transition-all duration-300">
       <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]">
         <svg class="w-5 h-5 mb-0.5" viewBox="0 0 50 70">
           <path d="M15 25 C10 10 18 5 20 20 C22 5 30 10 25 25" fill="#FFF9F8" stroke="#3D3435" stroke-width="2.5"/>
@@ -414,7 +416,6 @@
               <button onclick="adjustStation('station3', 1)" class="w-7 h-7 bg-white border-2 border-dusty-dark rounded-lg font-black text-sm active:translate-y-0.5">+</button>
             </div>
           </div>
-
           <button onclick="saveAllStations()" class="hand-btn w-full bg-dusty-mintText text-white py-2 mt-1">📡 廣播同步三站號碼</button>
         </div>
         <!-- 📢 推送現場廣播控制區 -->
@@ -447,12 +448,16 @@
     </div>
   </div>
   <script>
-    // 自動監聽輸入框 focus/blur 事件，打字時自動隱藏底部 Navigation Bar
+    // 自動監聽輸入框 focus/blur 事件，打字時自動隱藏底部 Navigation Bar 避免遮擋
     document.addEventListener('DOMContentLoaded', () => {
       const inputs = document.querySelectorAll('input, textarea');
       inputs.forEach(input => {
         input.addEventListener('focus', () => {
           document.body.classList.add('keyboard-open');
+          // 確保聚焦時自動滾動至可視區域
+          setTimeout(() => {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 250);
         });
         input.addEventListener('blur', () => {
           document.body.classList.remove('keyboard-open');
@@ -469,7 +474,6 @@
       
       const regCount = (window.state.registry || []).length;
       document.getElementById('publicCheckinCount').innerText = regCount;
-
       if (document.getElementById('adminCall1')) {
         document.getElementById('adminCall1').value = window.state.station1 || 0;
         document.getElementById('adminCall2').value = window.state.station2 || 0;
@@ -495,7 +499,6 @@
       val = Math.max(0, val + delta);
       inputEl.value = val;
     }
-
     function saveAllStations() {
       window.state.station1 = parseInt(document.getElementById('adminCall1').value) || 0;
       window.state.station2 = parseInt(document.getElementById('adminCall2').value) || 0;
@@ -665,7 +668,6 @@
       if (key === 'quiz') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-purple border-2 border-dusty-dark text-dusty-purpleText font-bold shadow-[2px_2px_0px_#3D3435]";
       if (key === 'survey') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-cream border-2 border-dusty-dark text-dusty-dark font-bold shadow-[2px_2px_0px_#3D3435]";
     }
-
     // 依據「過號則現場報到後再等 2 號，每看 2 位正常號，插入 1 位過號」規則計算預估進度
     function checkQueueStatus() {
       const myNum = parseInt(document.getElementById('myNumberInput').value);
@@ -677,7 +679,7 @@
       
       if (myNum <= currentCall) {
         // 🚨 這是過號狀況（個人號碼小於或等於目前已看診號碼）
-        // 規則：過號到現場報到後，需再等 2 位正常號，預估會在 (目前叫號 + 2) 號進去看診
+        // 規則：過號到現場報到後，需再等 2 位正常號，預估會在 (目前叫號 + 2) 號後進去看診
         const overdueArrangeNum = currentCall + 2;
         res.className = "p-3 rounded-xl text-xs font-bold text-left bg-amber-50 text-dusty-dark border-2 border-dusty-dark block space-y-1";
         res.innerHTML = `
@@ -686,8 +688,8 @@
           </div>
           <div class="bg-white p-2 rounded-lg border border-dusty-dark text-[11px] leading-relaxed">
             📌 <b>過號叫號規則說明：</b><br>
-            到達現場報到後需<b>再等候 2 號</b>。護理師每看 1~2 位正常號會插入 1 位過號。<br>
-            目前看診：<b>${String(currentCall).padStart(3,'0')} 號</b> ➔ 預估安排您於 <b>${String(overdueArrangeNum).padStart(3,'0')} 號</b> 插入進去看診。
+            到達現場報到後需<b>再等候 2 號</b>。護理師每看 2位正常號會插入 1 位過號。<br>
+            目前看診：<b>${String(currentCall).padStart(3,'0')} 號</b> ➔ 預估安排您於 <b>${String(overdueArrangeNum).padStart(3,'0')} 號</b> 後插入進去看診。
           </div>
         `;
       } else {
