@@ -9,6 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <!-- Firebase 9.x SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -21,9 +22,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const stateRef = ref(db, 'vaccine_state');
-    
-    // 🔗 Google Sheets 網頁應用程式網址 (已更新為您的最新網址)
-    const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzdGNgS-4lc5HeA-UfLVt4JOJ1KmRGXcmDNsMbsve0MnMfXCxdoJ3Gsoib5Z9R5VMj6GA/exec";
 
     // 預設重置狀態
     const initialState = {
@@ -37,8 +35,10 @@
       surveys: [],
       overdueList: []
     };
+
     // 全域狀態
     window.state = { ...initialState };
+
     // 1. 即時監聽雲端變更
     onValue(stateRef, (snapshot) => {
       const data = snapshot.val();
@@ -53,16 +53,18 @@
         window.updateUI();
       }
     });
+
     // 2. 同步資料至雲端
     window.syncState = function() {
       window.state.lastUpdated = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
       set(stateRef, window.state);
     };
+
     // 3. 🧹 完全重置所有資料（歸零）
     window.resetAllData = function() {
       if (confirm("⚠️ 確定要【清空所有資料】並歸零重來嗎？\n此操作將刪除：\n1. 三站所有叫號\n2. 雲端報到總名冊\n3. 過號登記紀錄\n4. 所有問卷回饋紀錄\n\n動作無法復原！")) {
-        const doubleCheck = prompt("為避免誤觸，請輸入數字 8888 以確認完全重置：");
-        if (doubleCheck === '8888') {
+        const doubleCheck = prompt("為避免誤觸，請輸入 職護分機 以確認完全重置：");
+        if (doubleCheck === '3884') {
           window.state = {
             station1: "000",
             station2: "000",
@@ -82,6 +84,7 @@
       }
     };
   </script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -99,6 +102,7 @@
       }
     }
   </script>
+
   <style>
     body {
       background-color: #E69D9D;
@@ -145,6 +149,7 @@
       </div>
       <button onclick="toggleRoleModal()" class="hand-btn bg-dusty-purple text-dusty-purpleText text-xs px-2.5 py-1.5 font-bold">⚙️ 醫護後台</button>
     </header>
+
     <!-- 廣播 Banner -->
     <div id="broadcastBanner" class="mx-4 mt-3 bg-dusty-yellow p-3 rounded-2xl border-2 border-dusty-dark text-xs font-bold text-dusty-yellowText flex items-center justify-between shadow-[2px_2px_0px_#3D3435]">
       <div class="flex items-center gap-2 overflow-hidden">
@@ -152,6 +157,7 @@
         <span id="broadcastText" class="truncate">載入廣播中...</span>
       </div>
     </div>
+
     <!-- 主要內容區 -->
     <main class="p-4 space-y-4 overflow-y-auto">
       
@@ -160,7 +166,7 @@
         <div class="hand-card bg-white p-4 space-y-3">
           <div class="text-center pb-2 border-b-2 border-dashed border-dusty-dark flex justify-between items-center">
             <span class="inline-flex items-center gap-1.5 bg-dusty-mint text-dusty-mintText text-xs font-bold px-3 py-1 rounded-full border border-dusty-dark">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 全場雲端即時連線
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 雲端即時連線
             </span>
             <span class="text-xs font-bold text-slate-700">目前已報到：<span id="publicCheckinCount" class="text-dusty-pink font-black text-sm">0</span> 人</span>
           </div>
@@ -180,15 +186,16 @@
           </div>
           <p class="text-[10px] text-center text-slate-400 font-bold">最後同步：<span id="lastUpdatedDisplay">--:--</span></p>
         </div>
-        <!-- 自助報到 -->
+
+        <!-- 報到 -->
         <div class="hand-card bg-dusty-cream p-4 space-y-3">
           <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
-            <span class="text-base">📋</span> 民眾自主報到取號
+            <span class="text-base">📋</span> 報到取號 (由環安室同仁現場協助)
           </h3>
           <div class="space-y-2">
             <div>
-              <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">姓名 / 綽號：</label>
-              <input type="text" id="checkinName" placeholder="例如：王大明 或 Alex Wang" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
+              <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">姓+性別 或 綽號：</label>
+              <input type="text" id="checkinName" placeholder="例如：王先生 或 Alex Wang" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">身分證號末 5 碼：</label>
@@ -208,6 +215,7 @@
             <p class="text-xs text-emerald-800 font-bold" id="myTicketName"></p>
           </div>
         </div>
+
         <!-- 號碼對照 -->
         <div class="hand-card bg-dusty-yellow/60 p-4 space-y-2">
           <h3 class="text-xs font-bold text-dusty-dark">🎫 查詢我的號碼進度（含過號插隊規則說明）</h3>
@@ -218,6 +226,7 @@
           <div id="queueResult" class="hidden p-2.5 rounded-xl text-xs font-bold text-center border-2 border-dusty-dark space-y-1"></div>
         </div>
       </section>
+
       <!-- TAB 2: 接種須知 -->
       <section id="tab-info" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-white p-5 space-y-3">
@@ -240,6 +249,7 @@
           </div>
         </div>
       </section>
+
       <!-- TAB 3: 衛教問答 & 勇者勳章 -->
       <section id="tab-quiz" class="tab-content space-y-4 hidden">
         <div id="quizContainerBox" class="hand-card bg-dusty-purple/40 p-5 space-y-4">
@@ -252,6 +262,7 @@
           <div id="quizFeedbackBox" class="hidden p-3 rounded-2xl text-xs font-bold border-2 border-dusty-dark"></div>
           <button id="nextQuizBtn" onclick="nextQuizQuestion()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs hidden">下一題 ✨</button>
         </div>
+
         <div id="heroBadgeCard" class="hidden hand-card bg-white p-6 text-center space-y-4 border-2 border-dusty-dark">
           <div class="inline-block bg-dusty-pink text-white text-xs font-black px-4 py-1.5 rounded-full border border-dusty-dark">
             🏆 今日抗體勇者認證
@@ -264,11 +275,12 @@
             <span class="text-2xl">🎁</span>
             <div>
               <p class="font-bold">現場兌換紀念小禮物</p>
-              <p class="text-[11px] font-medium">請向服務台出示此勇者勳章畫面，即可領取 2026 紀念小禮物！</p>
+              <p class="text-[11px] font-medium">請向服務台出示此勇者勳章畫面，即可領取紀念小禮！</p>
             </div>
           </div>
         </div>
       </section>
+
       <!-- TAB 4: 滿意度問卷 -->
       <section id="tab-survey" class="tab-content space-y-4 hidden">
         <div class="hand-card bg-dusty-cream p-5 space-y-4">
@@ -280,9 +292,10 @@
             
             <!-- 選填姓名 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
-              <label class="block text-dusty-dark font-bold">填寫人姓名 / 單位（選填，不願具名可不填）：</label>
-              <input type="text" id="surveyName" placeholder="例如：王大明 或 環安室張小姐 (未填將以匿名送出)" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
+              <label class="block text-dusty-dark font-bold">填寫人：姓+性別或綽號（選填，不願具名可不填）：</label>
+              <input type="text" id="surveyName" placeholder="例如：王先生或 Alex Wang (未填將以匿名送出)" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
             </div>
+
             <!-- Q1 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">1. 接種流程動線與現場等待時間</p>
@@ -298,6 +311,7 @@
               </div>
               <input type="hidden" id="val-q1" value="5">
             </div>
+
             <!-- Q2 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">2. 場地環境舒適度與指標清晰度</p>
@@ -313,6 +327,7 @@
               </div>
               <input type="hidden" id="val-q2" value="5">
             </div>
+
             <!-- Q3 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">3. 現場醫護與工作人員服務態度</p>
@@ -328,6 +343,7 @@
               </div>
               <input type="hidden" id="val-q3" value="5">
             </div>
+
             <!-- Q4 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">4. 接種前衛教與注意事項說明清晰度</p>
@@ -343,6 +359,7 @@
               </div>
               <input type="hidden" id="val-q4" value="5">
             </div>
+
             <!-- Q5 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">5. 本次流感疫苗接種活動綜合評價</p>
@@ -358,6 +375,7 @@
               </div>
               <input type="hidden" id="val-q5" value="5">
             </div>
+
             <!-- Q6 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
               <p class="text-dusty-dark">6. 您對於未來辦理疫苗接種活動的寶貴建議或心得（選填）：</p>
@@ -374,6 +392,7 @@
         </div>
       </section>
     </main>
+
     <!-- 底部導覽列 -->
     <nav id="bottom-nav" class="fixed bottom-0 max-w-md w-full bg-white border-t-2 border-dusty-dark z-35 flex justify-around p-2 rounded-t-3xl shadow-lg gap-1 transition-all duration-300">
       <button onclick="switchTab('calling')" id="nav-calling" class="nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-mint border-2 border-dusty-dark text-dusty-mintText font-bold shadow-[2px_2px_0px_#3D3435]">
@@ -410,6 +429,7 @@
       </button>
     </nav>
   </div>
+
   <!-- 醫護人員雲端控制台 Modal -->
   <div id="roleModal" class="fixed inset-0 bg-dusty-dark/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="hand-card bg-white max-w-sm w-full p-5 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -417,10 +437,12 @@
         <h3 class="text-base font-bold text-dusty-dark">👩‍⚕️ 醫護雲端控制台</h3>
         <button onclick="toggleRoleModal()" class="text-slate-400 font-bold text-lg">✕</button>
       </div>
+
       <div id="authBox" class="space-y-2">
         <input type="password" id="pinInput" placeholder="請輸入 PIN 碼" class="w-full border-2 border-dusty-dark rounded-xl px-3 py-2 text-center text-xs font-bold">
         <button onclick="verifyPin()" class="hand-btn w-full bg-dusty-purple text-dusty-purpleText font-bold py-2 text-xs">進入後台</button>
       </div>
+
       <div id="controlBox" class="space-y-4 hidden">
         
         <!-- 三站叫號控制 -->
@@ -456,6 +478,7 @@
           </div>
           <button onclick="saveAllStations()" class="hand-btn w-full bg-dusty-mintText text-white py-2 mt-1">📡 廣播同步三站號碼</button>
         </div>
+
         <!-- 🛑 登記過號號碼專區 -->
         <div class="bg-amber-50 p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
           <label class="block text-amber-900">🛑 報到櫃台 - 登記過號號碼：</label>
@@ -465,12 +488,14 @@
           </div>
           <div id="adminOverdueListDisplay" class="text-[10px] text-slate-600">已登記過號：無</div>
         </div>
+
         <!-- 📢 廣播控制區 -->
         <div class="bg-dusty-yellow/60 p-3 rounded-xl border-2 border-dusty-dark space-y-2 text-xs font-bold">
-          <label class="block text-dusty-yellowText">📢 推送現場即時廣播公告：</label>
-          <input type="text" id="adminBroadcastInput" placeholder="例如：上午場即將額滿，請加快報到" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold">
+          <label class="block text-dusty-yellowText">📢 推送現場即時公告：</label>
+          <input type="text" id="adminBroadcastInput" placeholder="例如：即將額滿，請加快報到" class="w-full bg-white border-2 border-dusty-dark rounded-xl px-3 py-1.5 text-xs font-bold">
           <button onclick="sendBroadcast()" class="hand-btn w-full bg-dusty-yellow text-dusty-yellowText py-1.5">發布廣播至全場手機</button>
         </div>
+
         <!-- 雲端報到名冊 -->
         <div class="space-y-1">
           <div class="flex justify-between items-center">
@@ -481,6 +506,7 @@
             <table class="w-full text-left"><tbody id="registryList"><tr><td class="text-gray-400">尚無資料</td></tr></tbody></table>
           </div>
         </div>
+
         <!-- 雲端問卷回饋 -->
         <div class="space-y-1 pt-2 border-t border-slate-200">
           <div class="flex justify-between items-center">
@@ -491,6 +517,7 @@
             <p class="text-gray-400 text-center">尚無問卷資料</p>
           </div>
         </div>
+
         <!-- 🚨 一鍵清空歸零（重置系統）區 -->
         <div class="pt-3 border-t-2 border-dashed border-rose-300">
           <button onclick="resetAllData()" class="hand-btn w-full bg-rose-500 text-white font-black py-2 text-xs shadow-md active:translate-y-0.5">
@@ -498,9 +525,11 @@
           </button>
           <p class="text-[9px] text-center text-slate-500 mt-1 font-bold">⚠️ 將完全清空叫號、報到紀錄與問卷資料</p>
         </div>
+
       </div>
     </div>
   </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const inputs = document.querySelectorAll('input, textarea');
@@ -516,6 +545,7 @@
         });
       });
     });
+
     window.updateUI = function() {
       document.getElementById('callStation1').innerText = window.state.station1 || "000";
       document.getElementById('callStation2').innerText = window.state.station2 || "000";
@@ -542,6 +572,7 @@
       renderRegistry();
       renderSurveys();
     };
+
     function toggleRoleModal() { document.getElementById('roleModal').classList.toggle('hidden'); }
     function verifyPin() {
       if (document.getElementById('pinInput').value === '8888') {
@@ -549,6 +580,7 @@
         document.getElementById('controlBox').classList.remove('hidden');
       } else { alert("PIN 碼錯誤！"); }
     }
+
     // 🛡️ 叫號順序防呆判斷（第3站 <= 第2站 <= 第1站）
     function adjustStation(stationKey, delta) {
       const input1 = document.getElementById('adminCall1');
@@ -558,12 +590,15 @@
       const targetInput = stationKey === 'station1' ? input1 : stationKey === 'station2' ? input2 : input3;
       let val = parseInt(targetInput.value) || 0;
       val = Math.max(0, val + delta);
+
       let v1 = parseInt(input1.value) || 0;
       let v2 = parseInt(input2.value) || 0;
       let v3 = parseInt(input3.value) || 0;
+
       if (stationKey === 'station1') v1 = val;
       if (stationKey === 'station2') v2 = val;
       if (stationKey === 'station3') v3 = val;
+
       if (v3 > v2) {
         alert("⚠️ 流程防呆限制：第 3 站 (接種注射) 的號碼不能超過第 2 站 (醫師問診)！");
         return;
@@ -572,16 +607,20 @@
         alert("⚠️ 流程防呆限制：第 2 站 (醫師問診) 的號碼不能超過第 1 站 (掛號櫃台)！");
         return;
       }
+
       targetInput.value = String(val).padStart(3, '0');
     }
+
     // 🛡️ 防呆機制：發布同步前驗證
     function saveAllStations() {
       const val1 = document.getElementById('adminCall1').value.trim();
       const val2 = document.getElementById('adminCall2').value.trim();
       const val3 = document.getElementById('adminCall3').value.trim();
+
       let num1 = parseInt(val1);
       let num2 = parseInt(val2);
       let num3 = parseInt(val3);
+
       if (!isNaN(num1) && !isNaN(num2) && !isNaN(num3)) {
         if (num3 > num2) {
           alert("⚠️ 流程防呆限制：第 3 站 (接種注射) 的號碼不能超過第 2 站 (醫師問診)！");
@@ -592,12 +631,14 @@
           return;
         }
       }
+
       window.state.station1 = val1;
       window.state.station2 = val2;
       window.state.station3 = val3;
       window.syncState();
       alert("三站號碼已同步至全場！");
     }
+
     // 🛑 登記過號號碼
     function registerOverdueNumber() {
       const val = document.getElementById('adminOverdueInput').value.trim();
@@ -609,6 +650,7 @@
       document.getElementById('adminOverdueInput').value = '';
       alert(`已成功登記過號號碼：${val}`);
     }
+
     function sendBroadcast() {
       const msg = document.getElementById('adminBroadcastInput').value.trim();
       if (!msg) { alert("請輸入廣播內容！"); return; }
@@ -616,7 +658,8 @@
       window.syncState();
       alert("📢 現場廣播已秒速推播至全場手機！");
     }
-    // 民眾自主報到
+
+    // 報到
     function submitCloudCheckin() {
       const name = document.getElementById('checkinName').value.trim();
       const id5 = document.getElementById('checkinId').value.trim();
@@ -629,23 +672,6 @@
       if (!window.state.registry) window.state.registry = [];
       window.state.registry.unshift({ name, id: id5, temp, ticket, time });
       window.syncState();
-
-      // 🟢 同步發送至 Google Sheets
-      const checkinData = {
-        type: 'checkin',
-        ticket: ticket,
-        name: name,
-        id: id5,
-        temp: temp,
-        time: new Date().toLocaleString('zh-TW')
-      };
-      fetch(GOOGLE_SHEET_API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(checkinData)
-      }).catch(err => console.error("Google Sheet 寫入失敗:", err));
-
       document.getElementById('myTicketNum').textContent = ticket;
       document.getElementById('myTicketName').textContent = `${name} 報到成功！`;
       document.getElementById('myTicketBox').classList.remove('hidden');
@@ -654,6 +680,7 @@
       document.getElementById('checkinTemp').value = '';
       if (typeof confetti === 'function') confetti({ particleCount: 50 });
     }
+
     // 衛教問答邏輯
     const quizList = [
       { q: "1. 打完流感疫苗就不會得到普通感冒了嗎？", opts: [{ t: "⭕ 對，完全免疫", c: false }, { t: "❌ 錯，流感與一般感冒不同", c: true }], exp: "流感疫苗主要預防重症流感，對一般感冒病毒無效喔。" },
@@ -701,6 +728,7 @@
         if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70 });
       }
     }
+
     // 星星互動
     const starLabels = { 1: "1分 (需改善)", 2: "2分 (尚可)", 3: "3分 (普通)", 4: "4分 (滿意)", 5: "5分 (非常滿意)" };
     function setStar(qName, score) {
@@ -712,11 +740,11 @@
       const labelEl = document.querySelector(`.${qName}-label`);
       if (labelEl) labelEl.innerText = starLabels[score];
     }
+
     // 提交滿意度問卷（包含選填姓名）
     function submitCloudSurvey(e) {
       e.preventDefault();
       const nameVal = document.getElementById('surveyName').value.trim() || '匿名';
-      const currentTime = new Date().toLocaleString('zh-TW');
       const res = {
         name: nameVal,
         q1: document.getElementById('val-q1').value,
@@ -725,24 +753,11 @@
         q4: document.getElementById('val-q4').value,
         q5: document.getElementById('val-q5').value,
         q6: document.getElementById('q6Comment').value.trim() || '無',
-        time: currentTime
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       if (!window.state.surveys) window.state.surveys = [];
       window.state.surveys.unshift(res);
       window.syncState();
-
-      // 🟢 同步發送至 Google Sheets
-      const surveyData = {
-        type: 'survey',
-        ...res
-      };
-      fetch(GOOGLE_SHEET_API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(surveyData)
-      }).catch(err => console.error("Google Sheet 寫入失敗:", err));
-
       document.getElementById('surveyForm').reset();
       document.getElementById('surveyName').value = '';
       ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
@@ -750,6 +765,7 @@
       if (typeof confetti === 'function') confetti({ particleCount: 80 });
       setTimeout(() => { document.getElementById('surveySuccessMsg').classList.add('hidden'); }, 4000);
     }
+
     function renderRegistry() {
       const tbody = document.getElementById('registryList');
       const reg = window.state.registry || [];
@@ -759,6 +775,7 @@
       const recentReg = reg.slice(0, 5);
       tbody.innerHTML = recentReg.map(r => `<tr class="border-b"><td><b>${r.ticket}</b></td><td>${r.name}</td><td>${r.temp}°C</td><td class="text-right">${r.time}</td></tr>`).join('');
     }
+
     function renderSurveys() {
       const box = document.getElementById('surveyRecordList');
       const surveys = window.state.surveys || [];
@@ -774,6 +791,7 @@
         </div>
       `).join('');
     }
+
     function exportCSV(type) {
       const data = type === 'registry' ? (window.state.registry || []) : (window.state.surveys || []);
       if (data.length === 0) { alert("目前尚無資料可下載！"); return; }
@@ -792,6 +810,7 @@
       a.download = `${type === 'registry' ? '報到名冊' : '問卷回饋'}_${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
     }
+
     function switchTab(key) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-white border-2 border-dusty-dark text-slate-400 font-bold");
@@ -803,6 +822,7 @@
       if (key === 'quiz') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-purple border-2 border-dusty-dark text-dusty-purpleText font-bold shadow-[2px_2px_0px_#3D3435]";
       if (key === 'survey') activeBtn.className = "nav-btn flex-1 flex flex-col items-center p-1.5 rounded-2xl bg-dusty-cream border-2 border-dusty-dark text-dusty-dark font-bold shadow-[2px_2px_0px_#3D3435]";
     }
+
     function checkQueueStatus() {
       const inputVal = document.getElementById('myNumberInput').value.trim();
       const res = document.getElementById('queueResult');
@@ -851,6 +871,7 @@
         `;
       }
     }
+
     window.onload = function() {
       renderQuiz();
       ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => setStar(q, 5));
