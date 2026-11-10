@@ -22,7 +22,7 @@
     const db = getDatabase(app);
     const stateRef = ref(db, 'vaccine_state');
     
-    // 🔗 Google Sheets Apps Script Web App 網址
+    // 🔗 Google Sheets 網頁應用程式網址 (已自動帶入您的網址)
     const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzdGNgS-4lc5HeA-UfLVt4JOJ1KmRGXcmDNsMbsve0MnMfXCxdoJ3Gsoib5Z9R5VMj6GA/exec";
 
     // 預設重置狀態
@@ -160,7 +160,7 @@
         <div class="hand-card bg-white p-4 space-y-3">
           <div class="text-center pb-2 border-b-2 border-dashed border-dusty-dark flex justify-between items-center">
             <span class="inline-flex items-center gap-1.5 bg-dusty-mint text-dusty-mintText text-xs font-bold px-3 py-1 rounded-full border border-dusty-dark">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 全場雲端即時連線
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> 即時連線
             </span>
             <span class="text-xs font-bold text-slate-700">目前已報到：<span id="publicCheckinCount" class="text-dusty-pink font-black text-sm">0</span> 人</span>
           </div>
@@ -183,12 +183,12 @@
         <!-- 自助報到 -->
         <div class="hand-card bg-dusty-cream p-4 space-y-3">
           <h3 class="text-xs font-bold text-dusty-dark flex items-center gap-1.5">
-            <span class="text-base">📋</span> 民眾自主報到取號
+            <span class="text-base">📋</span> 現場報到取號
           </h3>
           <div class="space-y-2">
             <div>
-              <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">姓名 / 綽號：</label>
-              <input type="text" id="checkinName" placeholder="例如：王大明 或 Alex Wang" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
+              <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">姓 +性別 / 綽號：</label>
+              <input type="text" id="checkinName" placeholder="例如：王先生 或 Alex Wang" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-dusty-dark mb-0.5">身分證號末 5 碼：</label>
@@ -263,8 +263,8 @@
           <div class="bg-dusty-yellow p-3 rounded-2xl border-2 border-dusty-dark text-xs text-dusty-dark text-left flex items-center gap-2">
             <span class="text-2xl">🎁</span>
             <div>
-              <p class="font-bold">現場兌換紀念小禮物</p>
-              <p class="text-[11px] font-medium">請向服務台出示此勇者勳章畫面，即可領取 2026 紀念小禮物！</p>
+              <p class="font-bold">現場兌換小禮物</p>
+              <p class="text-[11px] font-medium">請向服務台出示此勇者勳章畫面，即可領取小禮物！</p>
             </div>
           </div>
         </div>
@@ -280,8 +280,8 @@
             
             <!-- 選填姓名 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
-              <label class="block text-dusty-dark font-bold">填寫人姓名 / 單位（選填，不願具名可不填）：</label>
-              <input type="text" id="surveyName" placeholder="例如：王大明 或 環安室張小姐 (未填將以匿名送出)" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
+              <label class="block text-dusty-dark font-bold">填寫人 姓+性別 /綽號（選填，不願具名可不填）：</label>
+              <input type="text" id="surveyName" placeholder="例如：王先生 或 Alex Wang (未填將以匿名送出)" class="hand-input w-full bg-white px-3 py-1.5 text-xs font-bold text-dusty-dark">
             </div>
             <!-- Q1 -->
             <div class="p-3 bg-white rounded-2xl border border-dusty-dark space-y-1">
@@ -365,7 +365,7 @@
             </div>
             
             <button type="submit" class="hand-btn w-full bg-dusty-mint text-dusty-mintText font-bold py-2.5 text-xs">
-              ☁️ 提交問卷至雲端
+              ☁️ 提交問卷
             </button>
           </form>
           <div id="surveySuccessMsg" class="hidden text-xs text-center font-bold text-emerald-800 p-2.5 bg-emerald-100 rounded-2xl border border-dusty-dark">
